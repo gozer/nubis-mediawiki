@@ -285,11 +285,11 @@ resources:
         db_password: anothersillypassword
 
         apache_vhost_name: mediawiki
-        apache_install_root: /var/www/mediawiki
+        apache_install_root: /var/www/refspec-mediawiki/mediawiki
 
-        app_install_dir: /var/www/mediawiki
-        app_git_url: https://github.com/uberj/mediawiki.git
-        app_install_script: heat/install.sh
+        app_install_dir: /var/www/refspec-mediawiki/mediawiki
+        app_git_url: https://github.com/uberj/refspec-mediawiki
+        app_install_script: install.sh
         app_db_server:
           get_attr: [db_server, first_address]
         app_secret_key: a-not-so-secret-key
