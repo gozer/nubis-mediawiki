@@ -1,0 +1,379 @@
+heat_template_version: 2013-05-23
+
+parameters:
+  key_name:
+    type: string
+  flavor:
+    type: string
+    default: m1.medium
+  image:
+    type: string
+    default: ubuntu-trusty.amd64-0.3.0.2014080707
+
+  public_net_id:
+    type: string
+    default: public
+    description: >
+      ID of public network for which floating IP addresses will be allocated
+  private_net_name:
+    type: string
+    default: private
+    description: Name of private network to be created
+  private_net_cidr:
+    type: string
+    default: 10.0.0.0/24
+    description: Private network address (CIDR notation)
+  private_net_gateway:
+    type: string
+    default: 10.0.0.1
+    description: Private network gateway address
+  private_net_pool_start:
+    type: string
+    default: 10.0.0.10
+    description: Start of private network IP address allocation pool
+  private_net_pool_end:
+    type: string
+    default: 10.0.0.254
+    description: End of private network IP address allocation pool
+
+
+resources:
+  secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Enable the flows needed for mediawiki
+      rules: 
+        - {protocol: tcp, port_range_max: 22, port_range_min: 22}
+        - {protocol: tcp, port_range_max: 80, port_range_min: 80}
+        - {protocol: tcp, port_range_max: 65535, port_range_min: 1, remote_mode: remote_group_id}
+        - {protocol: icmp}
+
+
+  private_net:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: private_net_name }
+
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: private_net }
+      cidr: { get_param: private_net_cidr }
+      gateway_ip: { get_param: private_net_gateway }
+      allocation_pools:
+        - start: { get_param: private_net_pool_start }
+          end: { get_param: private_net_pool_end }
+      dns_nameservers:
+        - 8.8.8.8
+
+  router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info:
+        network: { get_param: public_net_id }
+
+  router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: private_subnet }
+
+  db_server:
+    type: OS::Nova::Server
+    properties:
+      image: {get_param: image}
+      flavor: {get_param: flavor}
+      key_name: {get_param: key_name}
+      user_data_format: SOFTWARE_CONFIG
+      networks:
+        - port: { get_resource: db_port }
+
+  db_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+      security_groups:
+        - { get_resource: secgroup }
+
+  db_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_id }
+      port_id: { get_resource: db_port }
+
+  mysql_server_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      inputs:
+      - name: db_name
+      - name: root_password
+      - name: username
+      - name: password
+      - name: allowed_hosts
+        default: '10.0.0.%'
+      outputs:
+      - name: result
+      config: |
+        class { 'm::mysql::allinone':
+          root_password     => $::root_password,
+          db_name           => $::db_name,
+          user              => $::username,
+          password          => $::password,
+          allowed_hosts     => $::allowed_hosts,
+        }
+
+  mysql_server_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: mysql_server_config
+      server:
+        get_resource: db_server
+      input_values:
+        db_name:
+          get_attr: [app_config_deployment, db_name]
+        root_password:
+          get_attr: [app_config_deployment, db_root_password]
+        username:
+          get_attr: [app_config_deployment, db_username]
+        password:
+          get_attr: [app_config_deployment, db_password]
+
+
+
+  web_server:
+    type: OS::Nova::Server
+    properties:
+      image: {get_param: image}
+      flavor: {get_param: flavor}
+      key_name: {get_param: key_name}
+      user_data_format: SOFTWARE_CONFIG
+      networks:
+        - port: { get_resource: web_port }
+
+  web_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+      security_groups:
+        - { get_resource: secgroup }
+
+  web_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_id }
+      port_id: { get_resource: web_port }
+
+  apache_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      inputs:
+      - name: vhost_name
+      - name: install_root
+      outputs:
+      - name: result
+      config: |
+        class {'m::apache::php_vhost':
+          vhost_name    => $::vhost_name,
+          install_root  => $::install_root,
+        }
+
+  apache_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: apache_config
+      server:
+        get_resource: web_server
+      input_values:
+        vhost_name:
+          get_attr: [app_config_deployment, apache_vhost_name]
+        install_root:
+          get_attr: [app_config_deployment, apache_install_root]
+
+  mysql_client_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: puppet
+      outputs:
+      - name: result
+      config: |
+        include ::m::mysql::php_client
+
+  mysql_client_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: mysql_client_config
+      server:
+        get_resource: web_server
+
+  app_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      inputs:
+        - name: db_name
+        - name: db_root_password
+        - name: db_username
+        - name: db_password
+
+        - name: apache_vhost_name
+        - name: apache_install_root
+
+        - name: app_install_dir
+        - name: app_git_url
+        - name: app_install_script
+        - name: app_db_server
+        - name: app_secret_key
+      outputs:
+        - name: db_name
+        - name: db_root_password
+        - name: db_username
+        - name: db_password
+
+        - name: apache_vhost_name
+        - name: apache_install_root
+
+        - name: app_install_dir
+        - name: app_git_url
+        - name: app_install_script
+        - name: app_db_server
+        - name: app_secret_key
+      config: |
+        #!/bin/bash
+        set -x
+        function stash_config () {
+          # TODO Put this stuff in zookeeper and query with hiera in puppet?
+          # many ways to do this
+          val=${!1}
+          echo -n $val > ${heat_outputs_path}.$1
+          echo "export PROVISION_$1=$val" >> /etc/environment
+        }
+
+        stash_config db_name
+        stash_config db_root_password
+        stash_config db_username
+        stash_config db_password
+
+        stash_config apache_vhost_name
+        stash_config apache_install_root
+
+        stash_config app_install_dir
+        stash_config app_git_url
+        stash_config app_install_script
+        stash_config app_db_server
+        stash_config app_secret_key
+
+  app_config_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: app_config
+      server:
+        get_resource: web_server
+      input_values:
+        db_root_password: asillypassword
+        db_name: mediawiki
+        db_username: mediawiki
+        db_password: anothersillypassword
+
+        apache_vhost_name: mediawiki
+        apache_install_root: /var/www/mediawiki
+
+        app_install_dir: /var/www/mediawiki
+        app_git_url: https://github.com/uberj/mediawiki.git
+        app_install_script: heat/install.sh
+        app_db_server:
+          get_attr: [db_server, first_address]
+        app_secret_key: a-not-so-secret-key
+
+  app_install:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      inputs:
+      - name: install_dir
+      - name: git_url
+      - name: install_script
+      - name: branch
+        default: master
+      outputs:
+      - name: result
+      config: |
+        #!/bin/bash
+        mkdir -p $(dirname $install_dir)
+        git clone --branch $branch $git_url $install_dir
+        $install_dir/$install_script
+
+
+  app_install_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: app_install
+      server:
+        get_resource: web_server
+      input_values:
+        install_dir:
+          get_attr: [app_config_deployment, app_install_dir]
+        git_url:
+          get_attr: [app_config_deployment, app_git_url]
+        install_script:
+          get_attr: [app_config_deployment, app_install_script]
+        branch: refspec
+
+outputs:
+  result:
+    value:
+      get_attr: [mysql_server_deployment, result]
+  db_stdout:
+    value:
+      get_attr: [mysql_server_deployment, deploy_stdout]
+  db_stderr:
+    value:
+      get_attr: [mysql_server_deployment, deploy_stderr]
+  db_status_code:
+    value:
+      get_attr: [mysql_server_deployment, deploy_status_code]
+
+  web_stdout:
+    value:
+      get_attr: [apache_deployment, deploy_stdout]
+  web_result:
+    value:
+      get_attr: [apache_deployment, result]
+  web_stderr:
+    value:
+      get_attr: [apache_deployment, deploy_stderr]
+  web_status_code:
+    value:
+      get_attr: [apache_deployment, deploy_status_code]
+
+  app_stdout:
+    value:
+      get_attr: [app_install_deployment, deploy_stdout]
+  app_stderr:
+    value:
+      get_attr: [app_install_deployment, deploy_stderr]
+
+  mysql_client_app_stdout:
+    value:
+      get_attr: [mysql_client_deployment, deploy_stdout]
+  mysql_client_app_stderr:
+    value:
+      get_attr: [mysql_client_deployment, deploy_stderr]
+
+  web_public_ip:
+    description: Floating IP address of database in public network
+    value: { get_attr: [ db_floating_ip, floating_ip_address ] }
+
+  web_public_ip:
+    description: Floating IP address of webserver in public network
+    value: { get_attr: [ web_floating_ip, floating_ip_address ] }
