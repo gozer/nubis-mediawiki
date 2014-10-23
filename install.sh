@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 grep '. /etc/environment' /etc/apache2/envvars
 
 if [ $? -eq 1 ]; then

@@ -54,10 +54,10 @@ $wgEmailAuthentication = true;
 ## Database settings
 // ** MySQL settings from resource descriptor ** //
 $wgDBtype           = "mysql";
-$wgDBserver         = $_SERVER['PROVISION_app_db_server'];
-$wgDBname           = $_SERVER['PRIVISION_db_name'];
-$wgDBuser           = $_SERVER['PRIVISION_db_username'];
-$wgDBpassword       = $_SERVER['PRIVISION_db_password'];
+$wgDBserver         = $getenv('PROVISION_app_db_server');
+$wgDBname           = $getenv('PROVISION_db_name');
+$wgDBuser           = $getenv('PROVISION_db_username');
+$wgDBpassword       = $getenv('PROVISION_db_password');
 
 # MySQL specific settings
 $wgDBprefix         = "";
@@ -100,11 +100,11 @@ $wgShellLocale = "en_US.utf8";
 # Site language code, should be one of the list in ./languages/Names.php
 $wgLanguageCode = "en";
 
-$wgSecretKey = $_SERVER['PROVISION_app_secret_key'];
+$wgSecretKey = $getenv('PROVISION_app_secret_key');
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = $_SERVER['PROVISION_app_upgrade_key'];
+$wgUpgradeKey = $getenv('PROVISION_app_upgrade_key');
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, ie 'standard', 'nostalgia', 'cologneblue', 'monobook', 'vector':
