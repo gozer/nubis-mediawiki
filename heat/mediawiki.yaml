@@ -232,6 +232,7 @@ resources:
         - name: app_install_script
         - name: app_db_server
         - name: app_secret_key
+        - name: app_server_name
       outputs:
         - name: db_name
         - name: db_root_password
@@ -246,6 +247,7 @@ resources:
         - name: app_install_script
         - name: app_db_server
         - name: app_secret_key
+        - name: app_server_name
       config: |
         #!/bin/bash
         set -x
@@ -270,6 +272,7 @@ resources:
         stash_config app_install_script
         stash_config app_db_server
         stash_config app_secret_key
+        stash_config app_server_name
 
   app_config_deployment:
     type: OS::Heat::SoftwareDeployment
@@ -287,12 +290,14 @@ resources:
         apache_vhost_name: mediawiki
         apache_install_root: /var/www/refspec-mediawiki/mediawiki
 
-        app_install_dir: /var/www/refspec-mediawiki/mediawiki
+        app_install_dir: /var/www/refspec-mediawiki/
         app_git_url: https://github.com/uberj/refspec-mediawiki
         app_install_script: install.sh
         app_db_server:
           get_attr: [db_server, first_address]
         app_secret_key: a-not-so-secret-key
+        app_server_name:
+          get_attr: [ web_floating_ip, floating_ip_address ]
 
   app_install:
     type: OS::Heat::SoftwareConfig
@@ -309,12 +314,16 @@ resources:
       config: |
         #!/bin/bash
         mkdir -p $(dirname $install_dir)
-        git clone --branch $branch $git_url $install_dir
+        if [ ! -d $install_dir ]; then
+          git clone --branch $branch $git_url $install_dir
+        fi
         $install_dir/$install_script
 
 
   app_install_deployment:
     type: OS::Heat::SoftwareDeployment
+    depends_on:
+      - apache_deployment
     properties:
       config:
         get_resource: app_install
@@ -327,7 +336,6 @@ resources:
           get_attr: [app_config_deployment, app_git_url]
         install_script:
           get_attr: [app_config_deployment, app_install_script]
-        branch: refspec
 
 outputs:
   result:
