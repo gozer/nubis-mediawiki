@@ -130,6 +130,6 @@ $wgResourceLoaderMaxQueryLength = -1;
 # $wgUseSquid = true;
 # $wgSquidServers = array('10.22.81.208','10.22.81.210','10.22.81.212','10.22.81.213');
 
-require_once( "$IP/extensions/Persona/Persona.php" );
-$wgPersonaLoginAnywhere = false;
+#require_once( "$IP/extensions/Persona/Persona.php" );
+#$wgPersonaLoginAnywhere = false;
 
