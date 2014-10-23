@@ -29,7 +29,8 @@ $wgMetaNamespace = "Test";
 $wgScriptPath = "";
 $wgScriptExtension = ".php";
 
-$server_name           = "http://".getenv("PROVISION_app_server_name");
+$server_name           = getenv("PROVISION_app_server_name");
+
 ## The protocol and server name to use in fully-qualified URLs
 $wgServer = "http://".$server_name;
 
@@ -54,7 +55,7 @@ $wgEmailAuthentication = true;
 
 ## Database settings
 $wgDBtype = "mysql";
-$wgDBserver = $server_name;
+$wgDBserver         = getenv('PROVISION_app_db_server');
 $wgDBname           = getenv('PROVISION_db_name');
 $wgDBuser           = getenv('PROVISION_db_username');
 $wgDBpassword       = getenv('PROVISION_db_password');
