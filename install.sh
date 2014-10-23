@@ -14,6 +14,5 @@ if [ ! -d mediawiki ]; then
         # install plugins and whatever
         git checkout 1.23.5
     popd
-    service apache2 restart
 fi
 
