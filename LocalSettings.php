@@ -30,7 +30,7 @@ $wgScriptExtension  = ".php";
 $wgArticlePath      = "/$1";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer           = "https://WIKINAME.paas.allizom.org";
+$wgServer           = "http://".getenv("PROVISION_app_server_name");
 
 ## The relative URL path to the skins directory
 $wgStylePath        = "$wgScriptPath/skins";
