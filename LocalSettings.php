@@ -132,4 +132,4 @@ $wgResourceLoaderMaxQueryLength = -1;
 
 #require_once( "$IP/extensions/Persona/Persona.php" );
 #$wgPersonaLoginAnywhere = false;
-
+$wgShowExceptionDetails = true;
