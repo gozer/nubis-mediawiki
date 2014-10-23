@@ -29,7 +29,7 @@ $wgMetaNamespace = "Test";
 $wgScriptPath = "";
 $wgScriptExtension = ".php";
 
-$server_name           = getenv("PROVISION_app_server_name");
+$server_name = getenv("PROVISION_app_server_name");
 
 ## The protocol and server name to use in fully-qualified URLs
 $wgServer = "http://".$server_name;
@@ -46,8 +46,8 @@ $wgLogo = "$wgStylePath/common/images/wiki.png";
 $wgEnableEmail = true;
 $wgEnableUserEmail = true; # UPO
 
-$wgEmergencyContact = "apache@10.22.112.234";
-$wgPasswordSender = "apache@10.22.112.234";
+$wgEmergencyContact = "apache@".$server_name;
+$wgPasswordSender = "apache@".$server_name;
 
 $wgEnotifUserTalk = false; # UPO
 $wgEnotifWatchlist = false; # UPO

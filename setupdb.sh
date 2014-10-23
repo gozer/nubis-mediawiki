@@ -12,3 +12,4 @@ SSH_OPTIONS="-o StrictHostKeyChecking=no"
 scp $SSH_OPTIONS $1 $2@$3:/tmp/
 ssh $SSH_OPTIONS $2@$3 'bash -c "source /etc/environment && \
     mysql -h$PROVISION_app_db_server --user=$PROVISION_db_username --password=$PROVISION_db_password --database=$PROVISION_db_name < /tmp/'$db_file'"'
+ssh $SSH_OPTIONS $2@$3 service apache2 graceful

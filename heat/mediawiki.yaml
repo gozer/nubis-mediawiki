@@ -186,6 +186,8 @@ resources:
 
   apache_deployment:
     type: OS::Heat::SoftwareDeployment
+    depends_on:
+      - app_install_deployment
     properties:
       config:
         get_resource: apache_config
@@ -322,8 +324,6 @@ resources:
 
   app_install_deployment:
     type: OS::Heat::SoftwareDeployment
-    depends_on:
-      - apache_deployment
     properties:
       config:
         get_resource: app_install
