@@ -1,0 +1,26 @@
+{
+"provisioners": [
+  {
+    "type": "shell",
+    "inline": ["sudo chmod 777 /var/www/mediawiki"],
+    "order": "20"
+  },
+  {
+    "type": "file",
+    "source": "mediawiki/",
+    "destination": "/var/www/mediawiki",
+    "order": "21"
+  },
+  {
+    "type": "file",
+    "source": "nubis/bin/LocalSettings.php",
+    "destination": "/var/www/mediawiki/LocalSettings.php",
+    "order": "22"
+  },
+  {
+    "type": "shell",
+    "script": "nubis/bin/install.sh",
+    "order": "23"
+  }
+]
+}

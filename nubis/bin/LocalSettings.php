@@ -18,14 +18,16 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 ## Uncomment this to disable output compression
 # $wgDisableOutputCompression = true;
 
-$wgSitename = "test";
-$wgMetaNamespace = "Test";
+$wgSitename = "Nubis Mediawiki";
+$wgMetaNamespace = "Nubis";
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
 ## For more information on customizing the URLs
 ## (like /w/index.php/Page_title to /wiki/Page_title) please see:
 ## https://www.mediawiki.org/wiki/Manual:Short_URL
+$wgScript = "/index.php";
+$wgArticlePath = "/$1";
 $wgScriptPath = "";
 $wgScriptExtension = ".php";
 
@@ -54,14 +56,14 @@ $wgEnotifWatchlist = false; # UPO
 $wgEmailAuthentication = true;
 
 ## Database settings
-$wgDBtype = "mysql";
-$wgDBserver         = getenv('PROVISION_app_db_server');
-$wgDBname           = getenv('PROVISION_db_name');
-$wgDBuser           = getenv('PROVISION_db_username');
-$wgDBpassword       = getenv('PROVISION_db_password');
+$wgDBtype     = "mysql";
+$wgDBserver   = getenv('PROVISION_app_db_server');
+$wgDBname     = getenv('PROVISION_db_name');
+$wgDBuser     = getenv('PROVISION_db_username');
+$wgDBpassword = getenv('PROVISION_db_password');
 
 # MySQL specific settings
-$wgDBprefix = "test";
+$wgDBprefix = "";
 
 # MySQL table options to use during installation or update
 $wgDBTableOptions = "ENGINE=InnoDB, DEFAULT CHARSET=utf8";

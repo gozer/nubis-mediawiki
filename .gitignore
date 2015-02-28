@@ -1,0 +1,6 @@
+# Do not track secrets
+nubis/terraform/terraform.tfvars
+nubis/terraform/terraform.tfstate
+nubis/terraform/terraform.tfstate.backup
+terraform.tfstate
+terraform.tfstate.backup
