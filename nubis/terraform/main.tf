@@ -21,37 +21,27 @@ resource "consul_keys" "app_config" {
         delete = "true"
     }
     key {
-        name   = "db_name"
-        path   = "${var.project}/${var.environment}/config/db_name"
+        name   = "wgServer"
+        path   = "${var.project}/${var.environment}/config/wgServer"
+        value  = "http://www.mediawiki.nubis.allizom.org"
+        delete = "true"
+    }
+    key {
+        name   = "wgDBserver"
+        path   = "${var.project}/${var.environment}/config/wgDBserver"
+        value  = "${aws_db_instance.default.address}"
+        delete = "true"
+    }
+    key {
+        name   = "wgDBname"
+        path   = "${var.project}/${var.environment}/config/wgDBname"
         value  = "${var.project}"
         delete = "true"
     }
     key {
-        name   = "db_username"
-        path   = "${var.project}/${var.environment}/config/db_username"
+        name   = "wgDBuser"
+        path   = "${var.project}/${var.environment}/config/wgDBuser"
         value  = "${var.project}"
-        delete = "true"
-    }
-    key {
-        name   = "app_db_server"
-        path   = "${var.project}/${var.environment}/config/app_db_server"
-        value  = "localhost"
-        delete = "true"
-    }
-
-    #XXX: Needs to be auto-generated
-    key {
-        name   = "db_password"
-        path   = "${var.project}/${var.environment}/config/db_password"
-        value  = "TR9K9aM4Wc2uI5ND"
-        delete = "true"
-    }
-
-    #XXX: Needs to be auto-generated
-    key {
-        name   = "app_secret_key"
-        path   = "${var.project}/${var.environment}/config/app_secret_key"
-        value  = "751fdabf-b3d8-444e-97c2-3f3ca5d0b0db"
         delete = "true"
     }
 
@@ -111,10 +101,6 @@ resource "aws_instance" "web_server" {
 
     instance_type = "m3.medium"
 
-    depends_on = [
-        "aws_instance.migrator"
-    ]
-
     security_groups = [
         "${aws_security_group.inbound_traffic.name}"
     ]
@@ -139,6 +125,10 @@ resource "aws_instance" "migrator" {
         "${aws_security_group.inbound_traffic.name}"
     ]
 
+    depends_on = [
+        "aws_db_instance.default"
+    ]
+
     provisioner "remote-exec" {
         connection {
             user     = "ubuntu"
@@ -158,7 +148,8 @@ resource "aws_db_security_group" "rds_traffic" {
     description = "Allow rds traffic for ${var.project} in ${var.environment}"
 
     ingress {
-        cidr = "10.0.0.0/24"
+        security_group_owner_id = "579398555466"
+        security_group_name = "${aws_security_group.inbound_traffic.name}"
     }
 }
 
