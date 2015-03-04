@@ -3,9 +3,8 @@ variable "aws_secret_key" {}
 
 variable "amis" {
     default = {
-        eu-west-1 = "ami-179a0b60"
-        us-east-1 = "ami-104c1378"
-        us-west-2 = "ami-01240431"
+        us-east-1 = "ami-5c2e7634"
+        us-west-2 = "ami-cd7754fd"
     }
 }
 

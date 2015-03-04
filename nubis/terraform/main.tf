@@ -135,7 +135,7 @@ resource "aws_instance" "migrator" {
             key_file = "${var.key_file}"
         }
         inline = [
-            "sudo -E php /var/www/mediawiki/maintenance/update.php --quick",
+            "sudo /usr/local/bin/nubis-migrate",
             "sudo poweroff"
         ]
     }

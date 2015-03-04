@@ -31,10 +31,8 @@ $wgArticlePath = "/$1";
 $wgScriptPath = "";
 $wgScriptExtension = ".php";
 
-$server_name = getenv("PROVISION_app_server_name");
-
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "http://".$server_name;
+$wgServer = "http://localhost";
 
 ## The relative URL path to the skins directory
 $wgStylePath = "$wgScriptPath/skins";
@@ -48,8 +46,8 @@ $wgLogo = "$wgStylePath/common/images/wiki.png";
 $wgEnableEmail = true;
 $wgEnableUserEmail = true; # UPO
 
-$wgEmergencyContact = "apache@".$server_name;
-$wgPasswordSender = "apache@".$server_name;
+$wgEmergencyContact = "apache@localhost";
+$wgPasswordSender = "apache@localhost";
 
 $wgEnotifUserTalk = false; # UPO
 $wgEnotifWatchlist = false; # UPO
@@ -57,10 +55,10 @@ $wgEmailAuthentication = true;
 
 ## Database settings
 $wgDBtype     = "mysql";
-$wgDBserver   = getenv('PROVISION_app_db_server');
-$wgDBname     = getenv('PROVISION_db_name');
-$wgDBuser     = getenv('PROVISION_db_username');
-$wgDBpassword = getenv('PROVISION_db_password');
+$wgDBserver   = "localhost";
+$wgDBname     = "mediawiki";
+$wgDBuser     = "mediawiki";
+$wgDBpassword = "DB_Password";
 
 # MySQL specific settings
 $wgDBprefix = "";
@@ -103,11 +101,11 @@ $wgShellLocale = "en_US.utf8";
 # Site language code, should be one of the list in ./languages/Names.php
 $wgLanguageCode = "en";
 
-$wgSecretKey = getenv('PROVISION_app_secret_key');
+$wgSecretKey = "Secret_Key";
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = getenv('PROVISION_app_upgrade_key');
+$wgUpgradeKey = "Upgrade_Secret";
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, ie 'cologneblue', 'monobook', 'vector':
@@ -129,3 +127,5 @@ $wgDiff3 = "/usr/bin/diff3";
 # End of automatically generated settings.
 # Add more configuration options below.
 
+# Source the consul settings file
+require_once('/etc/nubis-config/mediawiki.php');

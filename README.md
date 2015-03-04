@@ -66,15 +66,15 @@ terraform apply -var-file=nubis/terraform/terraform.tfvars nubis/terraform/
 
 ## TODO
 I have a fair bit of work to do before this project is ready for use. Some of the outstanding tasks are:
-* Address route 53 SOA issue
-* Load data to rds instance
+* Address route 53 SOA issue [done]
+* Load data to rds instance [done]
 * Configure s3 bucket
-* Create autoscailing group
-* confd integration (/etc/nubis-confog/)
-* Finish migrator instance script
-* Play with code install with puppet
+* Create autoscaling group
+* confd integration (/etc/nubis-confog/)[done]
+* Finish migration instance script [done]
+* ~~Play with code install with puppet~~
 * Autogenerate
- * db_password
- * app_secret_key
- * app_upgrade_key
-* Fsix security group dependancy issues
+ * db_password [done]
+ * app_secret_key [done]
+ * app_upgrade_key [done]
+* Fix security group dependency issues (still?)
