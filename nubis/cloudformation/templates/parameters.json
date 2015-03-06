@@ -1,0 +1,15 @@
+{
+  "Parameters": {
+    "EnvType": {
+      "Description": "Environment type.",
+      "Default": "sandbox",
+      "Type": "String",
+      "AllowedValues": [
+        "prod",
+        "dev",
+        "sandbox"
+      ],
+      "ConstraintDescription": "must specify prod, dev, or sandbox."
+    }
+  }
+}

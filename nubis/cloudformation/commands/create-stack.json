@@ -1,0 +1,4 @@
+{
+    "TemplateBody": "", 
+    "OnFailure": "DELETE"
+}

@@ -1,0 +1,11 @@
+{
+  "StackName": "mediawiki-digi-93jd9j",
+
+  "Parameters": [
+    {
+      "ParameterKey": "EnvType",
+      "ParameterValue": "sandbox",
+      "UsePreviousValue": true
+    }
+  ]
+}
