@@ -1,0 +1,25 @@
+{
+  "Outputs": {
+    "SecurityGroupID": {
+      "Description": "The Security Group ID",
+      "Value": {
+        "Ref": "EC2SecurityGroup"
+      }
+    },
+    "InstanceID": {
+      "Description": "The Instance ID",
+      "Value": {
+        "Ref": "EC2Instance"
+      }
+    },
+    "ELBDNSName": {
+      "Description": "The Instance ID",
+      "Value": {
+        "Fn::GetAtt": [
+          "ELB",
+          "DNSName"
+        ]
+      }
+    }
+  }
+}

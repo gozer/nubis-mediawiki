@@ -1,39 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Mappings": {
-    "RegionMap": {
-      "us-east-1": {
-        "AMI": "ami-b2336bda"
-      },
-      "us-west-2": {
-        "AMI": "ami-bb73508b"
-      }
-    },
-    "InstanceTypeMap": {
-      "prod": {
-        "InstanceType": "m3.large"
-      },
-      "dev": {
-        "InstanceType": "m3.medium"
-      },
-      "sandbox": {
-        "InstanceType": "m3.medium"
-      }
-    }
-  },
-  "Parameters": {
-    "EnvType": {
-      "Description": "Environment type.",
-      "Default": "sandbox",
-      "Type": "String",
-      "AllowedValues": [
-        "prod",
-        "dev",
-        "sandbox"
-      ],
-      "ConstraintDescription": "must specify prod, dev, or sandbox."
-    }
-  },
+
   "Resources": {
     "EC2SecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",

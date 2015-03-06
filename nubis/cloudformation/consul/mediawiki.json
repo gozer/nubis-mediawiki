@@ -1,0 +1,32 @@
+[
+  {
+    "ParameterKey": "ELBDNSName",
+    "ParameterValue": "DNSName",
+    "UsePreviousValue": true
+  },
+  {
+    "ParameterKey": "wgServer",
+    "ParameterValue": "http://www.mediawiki.nubis.allizom.org",
+    "UsePreviousValue": false
+  },
+  {
+    "ParameterKey": "wgDBserver",
+    "ParameterValue": "Endpoint.Address",
+    "UsePreviousValue": true
+  },
+  {
+    "ParameterKey": "wgDBname",
+    "ParameterValue": "ProjectName",
+    "UsePreviousValue": true
+  },
+  {
+    "ParameterKey": "wgDBuser",
+    "ParameterValue": "StackName",
+    "UsePreviousValue": true
+  },
+  {
+    "ParameterKey": "wgDBpassword",
+    "ParameterValue": "7I3TDoNnf3iwJQ3IEtXShmpMRF04JE4k",
+    "UsePreviousValue": true
+  }
+]
