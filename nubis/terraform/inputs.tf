@@ -3,8 +3,8 @@ variable "aws_secret_key" {}
 
 variable "amis" {
     default = {
-        us-east-1 = "ami-5c2e7634"
-        us-west-2 = "ami-cd7754fd"
+        us-east-1 = "ami-2ed58e46"
+        us-west-2 = "ami-a7e5c697"
     }
 }
 
@@ -46,6 +46,14 @@ variable "key_name" {
 
 variable "key_file" {
   description = "SSH key file for remote-exec commands."
+}
+
+variable "ssl_key" {
+  description = "Key file for consul connection."
+}
+
+variable "ssl_cert" {
+  description = "Cert file for consul connection."
 }
 
 variable "dns_zone" {

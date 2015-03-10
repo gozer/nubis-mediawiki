@@ -55,7 +55,7 @@ provider "aws" {
 }
 
 resource "aws_security_group" "inbound_traffic" {
-  name        = "${var.project}-${var.environment}-${var.release}.${var.build}-inbound_traffic"
+  name        = "${var.project}-inbound_traffic-${var.environment}"
   description = "Allow inbound traffic for ${var.project} in ${var.environment}"
 
   # Allow port 80 traffic for testing
@@ -105,7 +105,7 @@ resource "aws_instance" "web_server" {
         "${aws_security_group.inbound_traffic.name}"
     ]
 
-    user_data = "NUBIS_PROJECT=${var.project}\nNUBIS_ENVIRONMENT=${var.environment}\nCONSUL_PUBLIC=1\nCONSUL_DC=${var.region}\nCONSUL_SECRET=${var.consul_secret}\nCONSUL_JOIN=${var.consul}"
+    user_data = "NUBIS_PROJECT=${var.project}\nNUBIS_ENVIRONMENT=${var.environment}\nCONSUL_PUBLIC=1\nCONSUL_DC=${var.region}\nCONSUL_SECRET=${var.consul_secret}\nCONSUL_JOIN=${var.consul}\nCONSUL_KEY=\"${file("${var.ssl_key}")}\"\nCONSUL_CERT=\"${file("${var.ssl_cert}")}\""
 
 }
 
@@ -140,11 +140,11 @@ resource "aws_instance" "migrator" {
         ]
     }
 
-    user_data = "NUBIS_PROJECT=${var.project}\nNUBIS_ENVIRONMENT=${var.environment}\nCONSUL_PUBLIC=1\nCONSUL_DC=${var.region}\nCONSUL_SECRET=${var.consul_secret}\nCONSUL_JOIN=${var.consul}"
+    user_data = "NUBIS_PROJECT=${var.project}\nNUBIS_ENVIRONMENT=${var.environment}\nCONSUL_PUBLIC=1\nCONSUL_DC=${var.region}\nCONSUL_SECRET=${var.consul_secret}\nCONSUL_JOIN=${var.consul}\nCONSUL_KEY=\"${file("${var.ssl_key}")}\"\nCONSUL_CERT=\"${file("${var.ssl_cert}")}\""
 }
 
 resource "aws_db_security_group" "rds_traffic" {
-    name = "${var.project}-${var.environment}-${var.release}-${var.build}-rds_traffic"
+    name = "${var.project}-rds_traffic-${var.environment}"
     description = "Allow rds traffic for ${var.project} in ${var.environment}"
 
     ingress {
@@ -155,7 +155,7 @@ resource "aws_db_security_group" "rds_traffic" {
 
 resource "aws_db_instance" "default" {
     name              = "${var.project}"
-    identifier        = "${var.project}-rds-${var.environment}-${var.release}-${var.build}"
+    identifier        = "${var.project}-rds-${var.environment}"
     allocated_storage = 10
     engine            = "mysql"
     engine_version    = "5.6.22"
@@ -201,4 +201,3 @@ resource "aws_route53_record" "www" {
    ttl = "300"
    records = ["${aws_elb.external.dns_name}"]
 }
-

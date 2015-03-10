@@ -18,7 +18,12 @@ CONSUL="http://localhost:8500/v1/kv/$NUBIS_PROJECT/$NUBIS_ENVIRONMENT/config"
 # We run early, so we need to account for Consul's startup time, unfortunately, magic isn't
 # always free
 CONSUL_UP=-1
+COUNT=0
 while [ "$CONSUL_UP" != "0" ]; do
+  if [ ${COUNT} == "60" ]; then
+    echo "ERROR: Could not connect to consul"
+    exit 1
+  fi
   QUERY=`curl -s http://localhost:8500/v1/kv/$NUBIS_PROJECT/$NUBIS_ENVIRONMENT/config?raw=1`
   CONSUL_UP=$?
 
@@ -28,6 +33,7 @@ while [ "$CONSUL_UP" != "0" ]; do
 
   echo "Consul not ready yet ($CONSUL_UP), retrying..."
   sleep 1
+  COUNT=${COUNT}+1
 done
 
 # Generate and set the secrets for the app
