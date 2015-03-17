@@ -40,19 +40,31 @@ get-route53-nameservers () {
 
 update-consul () {
     if [ ! -f ${IO_FILE:-0} ]; then
-        Echo "ERROR: Must pass a json file to update-consul"
+        echo "ERROR: Must pass a json file to update-consul"
         exit 1
     fi
-    wgServer=$(jq --monochrome-output --raw-output '.[0][] | if .OutputKey == "wgServer" then .OutputValue else empty end | @text' $IO_FILE)
-    wgDBserver=$(jq --monochrome-output --raw-output '.[0][] | if .OutputKey == "wgDBserver" then .OutputValue else empty end | @text' $IO_FILE)
-    wgDBname=$(jq --monochrome-output --raw-output '.[0][] | if .OutputKey == "wgDBname" then .OutputValue else empty end | @text' $IO_FILE)
-    wgDBuser=$(jq --monochrome-output --raw-output '.[0][] | if .OutputKey == "wgDBuser" then .OutputValue else empty end | @text' $IO_FILE)
 
-    CONSUL="http://$CONSUL_ENDPOINT:8500/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT/config"
-    curl -s -X PUT -d $wgServer $CONSUL/wgServer
-    curl -s -X PUT -d $wgDBserver $CONSUL/wgDBserver
-    curl -s -X PUT -d $wgDBname $CONSUL/wgDBname
-    curl -s -X PUT -d $wgDBuser $CONSUL/wgDBuser
+    CONSUL="http://ui.$CONSUL_ENDPOINT/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT"
+    COUNT=0
+    NUM_OUTPUTS=$(jq --monochrome-output --raw-output '.[0] | length' $IO_FILE)
+    while [ $COUNT -lt $NUM_OUTPUTS ]; do
+        # Test to see if the description starts with 'Consul:'
+        IS_CONSUL=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .Description" $IO_FILE | cut -d " " -f 1)
+        if [ $IS_CONSUL == "Consul:" ]; then
+            # Grab the Consul path from the second element
+            CONSUL_PATH=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .Description" $IO_FILE | cut -d " " -f 2)
+            # If the value is simply in root '/' we need to strip it or consul will not put it (ie // becomes /)
+            if [ ${CONSUL_PATH:-0} == "/" ]; then
+                unset CONSUL_PATH
+            fi
+
+            KEY=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .OutputKey" $IO_FILE)
+            VALUE=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .OutputValue" $IO_FILE)
+            echo "$VALUE $CONSUL_PATH/$KEY"
+            curl -s -X PUT -d $VALUE ${CONSUL}/${CONSUL_PATH}${KEY}
+        fi
+        COUNT=$[$COUNT+1]
+    done
 }
 
 get-and-update () {
