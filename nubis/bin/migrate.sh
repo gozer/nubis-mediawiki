@@ -4,11 +4,17 @@
 #+ This is the place to do things like database initilizations and migrations.
 #
 set -x
+
 # TODO This should be passed in somehow.
 INSTALL_ROOT='/var/www/mediawiki'
 
 # Source the consul connection details from the metadata api
 eval `ec2metadata --user-data`
+
+# Check to see if NUBIS_MIGRATE was set. If not we exit quietly.
+if [ ${NUBIS_MIGRATE:-0} == '0' ]; then
+    exit 0
+fi
 
 echo "Environment: $NUBIS_ENVIRONMENT"
 echo "Project: $NUBIS_PROJECT"

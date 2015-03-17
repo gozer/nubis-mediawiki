@@ -6,7 +6,6 @@
 
 $vhost_name = 'nubis-mediawiki.allizom.org'
 $install_root = '/var/www/mediawiki'
-$static_root = '/var/www/mediawiki/dpaste/static/'
 
 class {
     'apache':

@@ -1,0 +1,34 @@
+[
+  {
+    "ParameterKey": "ProjectName",
+    "ParameterValue": "mediawiki"
+  }, 
+  {
+    "ParameterKey": "EnvType",
+    "ParameterValue": "sandbox"
+  }, 
+  {
+    "ParameterKey": "Region",
+    "ParameterValue": "REGION"
+  },
+  {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "key"
+  },
+  {
+    "ParameterKey": "ConsulSecret",
+    "ParameterValue": "XXXXXXXX"
+  },
+  {
+    "ParameterKey": "ConsulEndpoint",
+    "ParameterValue": "REGION.consul.nubis.allizom.org"
+  },
+  {
+    "ParameterKey": "SslKey",
+    "ParameterValue": "Consul SSL Key: Payload data only"
+  },
+  {
+    "ParameterKey": "SslCert",
+    "ParameterValue": "Consul SSL Cert: Payload data only"
+  }
+]
