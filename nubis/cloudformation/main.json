@@ -78,6 +78,11 @@
     }
   },
 
+  "Conditions" : {
+    "CreateSandboxResources" : {"Fn::Equals" : [{"Ref" : "EnvType"}, "sandbox"]},
+    "CreateAutomationResources" : {"Fn::Not" : [{ "Fn::Equals" : [{"Ref" : "EnvType"}, "sandbox"]} ]}
+  },
+
   "Resources": {
     "EC2SecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
@@ -272,27 +277,49 @@
     },
     "HostedZone": {
       "Type" : "AWS::Route53::HostedZone",
+      "Condition" : "CreateSandboxResources",
       "Properties" : {
         "Name" : {
             "Fn::Join" : [ ".", [
-               { "Ref": "ProjectName" }, { "Ref" : "BaseZone" }
+               { "Ref": "ProjectName" }, { "Ref" : "EnvType" }, { "Ref" : "BaseZone" }
             ] ]
          }
       }
     },
     "WWWRecord" : {
       "Type" : "AWS::Route53::RecordSet",
+      "Condition" : "CreateSandboxResources",
       "DependsOn" : "HostedZone",
       "Properties" : 
       {
         "HostedZoneName" : {
             "Fn::Join" : [ "", [
-               { "Ref": "ProjectName" }, ".", { "Ref" : "BaseZone" }, "."
+               { "Ref": "ProjectName" }, ".", { "Ref" : "EnvType" }, ".", { "Ref" : "BaseZone" }, "."
             ] ]
          },
         "Name" :  {
             "Fn::Join" : [ "", [
-               "www", ".", { "Ref": "ProjectName" }, ".", { "Ref" : "BaseZone" }, "."
+               "www", ".", { "Ref": "ProjectName" }, ".", { "Ref" : "EnvType" }, ".", { "Ref" : "BaseZone" }, "."
+            ] ]
+         },
+        "Type" : "CNAME",
+        "TTL" : "300",
+        "ResourceRecords" : [ { "Fn::GetAtt" : [ "ELB", "DNSName" ] } ]
+      }
+    },
+    "WWWRecord" : {
+      "Type" : "AWS::Route53::RecordSet",
+      "Condition" : "CreateAutomationResources",
+      "Properties" : 
+      {
+        "HostedZoneName" : {
+            "Fn::Join" : [ "", [
+               { "Ref": "ProjectName" }, ".", { "Ref" : "EnvType" }, ".", { "Ref" : "BaseZone" }, "."
+            ] ]
+         },
+        "Name" :  {
+            "Fn::Join" : [ "", [
+               "www", ".", { "Ref": "ProjectName" }, ".", { "Ref" : "EnvType" }, ".", { "Ref" : "BaseZone" }, "."
             ] ]
          },
         "Type" : "CNAME",
