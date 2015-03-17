@@ -55,7 +55,7 @@ update-consul () {
     curl -s -X PUT -d $wgDBuser $CONSUL/wgDBuser
 }
 
-get_and_update () {
+get-and-update () {
     # If we do not get an I/O file then put on in temp
     if [ ! -f ${IO_FILE:-0} ]; then
         AUTOGEN_IO=1
@@ -92,6 +92,7 @@ while [ "$1" != "" ]; do
             echo -en "$0\n\n"
             echo -en "Usage: $0 [options] command\n\n"
             echo -en "Commands:\n"
+            echo -en "  get-and-update              Run get-outputs followed by update-consul\n"
             echo -en "  get-outputs                 Get defined outputs\n"
             echo -en "  update-consul               Put values into Consul\n"
             echo -en "  get-route53-nameservers     Get the list of Route53 nameservers\n\n"
@@ -121,9 +122,9 @@ while [ "$1" != "" ]; do
             get-route53-nameservers
         ;;
 
-        io | get_and_update )
+        io | get-and-update )
             # Get the outputs from AWS and put them in Consul
-            get_and_update
+            get-and-update
         ;;
     esac
     shift
