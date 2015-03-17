@@ -1,41 +1,31 @@
 {
 "provisioners": [
   {
-    "type": "shell",
-    "inline": ["sudo chmod 777 /var/www/mediawiki"],
-    "order": "11"
-  },
-  {
     "type": "file",
     "source": "mediawiki/",
     "destination": "/var/www/mediawiki",
-    "order": "12"
+    "order": "11"
   },
   {
     "type": "file",
     "source": "nubis/bin/LocalSettings.php",
     "destination": "/var/www/mediawiki/LocalSettings.php",
-    "order": "13"
-  },
-  {
-    "type": "shell",
-    "script": "nubis/bin/install.sh",
-    "order": "14"
+    "order": "12"
   },
   {
     "type": "file",
     "source": "nubis/bin/migrate.sh",
-    "destination": "/tmp/nubis-migrate",
-    "order": "15"
+    "destination": "/tmp/migrate.sh",
+    "order": "13"
   },
   {
     "type": "shell",
     "inline": [
-        "sudo mv /tmp/nubis-migrate /usr/local/bin/nubis-migrate",
-        "sudo chown root:root /usr/local/bin/nubis-migrate",
-        "sudo chmod 755 /usr/local/bin/nubis-migrate"
+        "sudo mv /tmp/migrate.sh /etc/nubis.d/migrate.sh",
+        "sudo chown root:root /etc/nubis.d/migrate.sh",
+        "sudo chmod 755 /etc/nubis.d/migrate.sh"
     ],
-    "order": "16"
+    "order": "14"
   }
 ]
 }

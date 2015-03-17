@@ -1,0 +1,341 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Parameters": {
+    "ProjectName": {
+      "Description": "Name of this project",
+      "Type": "String"
+    },
+    "EnvType": {
+      "Description": "Environment we are deploying into",
+      "Default": "sandbox",
+      "Type": "String",
+      "AllowedValues": [
+        "prod",
+        "dev",
+        "sandbox"
+      ],
+      "ConstraintDescription": "must specify prod, dev, or sandbox."
+    },
+      "ConsulSecret": {
+      "Description": "Key to connect to Consul with",
+      "Type": "String",
+      "NoEcho": "true"
+    },
+      "ConsulEndpoint": {
+      "Description": "Consul endpoint to connect to.",
+      "Default": "us-west-2.consul.nubis.allizom.org",
+      "Type": "String",
+      "AllowedValues": [
+        "us-west-2.consul.nubis.allizom.org",
+        "us-east-1.consul.nubis.allizom.org"
+      ]
+    },
+      "Region": {
+      "Description": "Region to deploy stack into",
+      "Type": "String"
+    },
+      "BaseZone": {
+      "Description": "Base zone to create route53 zone in",
+      "Default": "nubis.allizom.org",
+      "Type": "String"
+    },
+      "KeyName": {
+      "Description": "Existing ssh key to deploy to instances",
+      "Type": "String"
+    },
+      "SslKey": {
+      "Description": "Consul SSL key",
+      "Type": "String",
+      "NoEcho": "true"
+    },
+      "SslCert": {
+      "Description": "Consul SSL cert",
+      "Type": "String",
+      "NoEcho": "true"
+    }
+  },
+
+  "Mappings": {
+    "RegionMap": {
+      "us-east-1": {
+        "AMI": "ami-18bc9d70"
+      },
+      "us-west-2": {
+        "AMI": "ami-3b577a0b"
+      }
+    },
+    "InstanceTypeMap": {
+      "prod": {
+        "InstanceType": "m3.large"
+      },
+      "dev": {
+        "InstanceType": "m3.medium"
+      },
+      "sandbox": {
+        "InstanceType": "m3.medium"
+      }
+    }
+  },
+
+  "Resources": {
+    "EC2SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Inbound traffic rules",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8300",
+            "ToPort": "8303",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "udp",
+            "FromPort": "8300",
+            "ToPort": "8303",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ]
+      }
+    },
+    "LaunchConfig" : {
+        "Type" : "AWS::AutoScaling::LaunchConfiguration",
+        "Properties" : {
+            "ImageId": {
+                "Fn::FindInMap": [
+                    "RegionMap",
+                    {
+                        "Ref": "AWS::Region"
+                    },
+                    "AMI"
+                ]
+            },
+            "SecurityGroups" : [ { "Ref" : "EC2SecurityGroup" } ],
+            "InstanceType": {
+                "Fn::FindInMap": [
+                    "InstanceTypeMap",
+                    {
+                        "Ref": "EnvType"
+                    },
+                    "InstanceType"
+                ]
+            },
+            "KeyName": { "Ref": "KeyName" },
+            "UserData" : {
+                "Fn::Base64" : {
+                    "Fn::Join" : [ "\n", [
+                        { "Fn::Join" : [ "", [
+                            "NUBIS_PROJECT='", { "Ref": "ProjectName" }, "'"
+                        ]]},
+                        { "Fn::Join" : [ "", [
+                            "NUBIS_ENVIRONMENT='", { "Ref" : "EnvType" }, "'"
+                        ]]},
+                        "CONSUL_PUBLIC='1'",
+                        { "Fn::Join" : [ "", [
+                            "CONSUL_DC='", { "Ref" : "AWS::Region" }, "'"
+                        ]]},
+                        { "Fn::Join" : [ "", [
+                            "CONSUL_SECRET='", { "Ref" : "ConsulSecret" }, "'"
+                        ]]},
+                        { "Fn::Join" : [ "", [
+                            "CONSUL_JOIN='", { "Ref" : "ConsulEndpoint" }, "'"
+                        ]]},
+                        { "Fn::Join" : [ "", [
+                            "CONSUL_KEY=", {"Fn::Join" : [ "\n", [
+                                                "\"-----BEGIN PRIVATE KEY-----", { "Ref" : "SslKey" }, "-----END PRIVATE KEY-----\""
+                            ]]}
+                        ]]},
+                        { "Fn::Join" : [ "", [
+                            "CONSUL_CERT=", {"Fn::Join" : [ "\n", [
+                                                "\"-----BEGIN CERTIFICATE-----", { "Ref" : "SslCert" }, "-----END CERTIFICATE-----\""
+                            ]]}
+                        ]]},
+                        { "Fn::Join" : [ "", [
+                            "NUBIS_MIGRATE='", "1", "'"
+                        ]]}
+                ]]
+                }
+            }
+         }
+    },
+    "AutoScalingGroup" : {
+        "Type" : "AWS::AutoScaling::AutoScalingGroup",
+        "Properties" : {
+            "AvailabilityZones" : { "Fn::GetAZs" : ""},
+            "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+            "MinSize" : "1",
+            "MaxSize" : "1",
+            "LoadBalancerNames" : [ { "Ref" : "ELB" } ],
+            "Tags": [
+                {
+                    "Key": "Name",
+                    "Value": { "Ref": "AWS::StackName" },
+                    "PropagateAtLaunch" : "true"
+                }
+            ]
+        }
+    },
+    "ELB": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "AvailabilityZones": [
+          "us-west-2a",
+          "us-west-2b",
+          "us-west-2c"
+        ],
+        "CrossZone": true,
+        "Listeners": [
+          {
+            "InstancePort": "80",
+            "InstanceProtocol": "HTTP",
+            "LoadBalancerPort": "80",
+            "Protocol": "HTTP"
+          }
+        ],
+        "HealthCheck": {
+          "HealthyThreshold": "2",
+          "UnhealthyThreshold": "2",
+          "Timeout": "3",
+          "Target": "HTTP:80/Special%3AVersion",
+          "Interval": "30"
+        }
+      }
+    },
+    "RDSInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "AllocatedStorage": "10",
+        "DBInstanceClass": "db.t1.micro",
+        "Engine": "mysql",
+        "EngineVersion": "5.6.22",
+        "MultiAZ": "true",
+        "DBSecurityGroups": [
+          {
+            "Ref": "RDSSecurityGroup"
+          }
+        ],
+        "MasterUsername": { "Ref": "ProjectName" },
+        "MasterUserPassword": "provisioner_password",
+        "DBName":  { "Ref": "ProjectName" },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "ProjectName"
+            }
+          }
+        ]
+      }
+    },
+    "RDSSecurityGroup": {
+      "Type": "AWS::RDS::DBSecurityGroup",
+      "Properties": {
+        "DBSecurityGroupIngress": {
+          "EC2SecurityGroupId": {
+            "Fn::GetAtt": [
+              "EC2SecurityGroup",
+              "GroupId"
+            ]
+          }
+        },
+        "GroupDescription": "Front end instance access",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ]
+      }
+    },
+    "HostedZone": {
+      "Type" : "AWS::Route53::HostedZone",
+      "Properties" : {
+        "Name" : {
+            "Fn::Join" : [ ".", [
+               { "Ref": "ProjectName" }, { "Ref" : "BaseZone" }
+            ] ]
+         }
+      }
+    },
+    "WWWRecord" : {
+      "Type" : "AWS::Route53::RecordSet",
+      "DependsOn" : "HostedZone",
+      "Properties" : 
+      {
+        "HostedZoneName" : {
+            "Fn::Join" : [ "", [
+               { "Ref": "ProjectName" }, ".", { "Ref" : "BaseZone" }, "."
+            ] ]
+         },
+        "Name" :  {
+            "Fn::Join" : [ "", [
+               "www", ".", { "Ref": "ProjectName" }, ".", { "Ref" : "BaseZone" }, "."
+            ] ]
+         },
+        "Type" : "CNAME",
+        "TTL" : "300",
+        "ResourceRecords" : [ { "Fn::GetAtt" : [ "ELB", "DNSName" ] } ]
+      }
+    }
+  },
+
+  "Outputs": {
+    "ELBDNSName": {
+      "Description": "Consul: ELB CNAME",
+      "Value": {
+        "Fn::GetAtt": [
+          "ELB",
+          "DNSName"
+        ]
+      }
+    },
+    "wgServer": {
+      "Description": "Consul: Application: Server name",
+      "Value": {
+        "Fn::Join" : [ ".", [
+          "http://www", { "Ref": "ProjectName" }, "nubis.allizom.org"
+        ]]
+      }
+    },
+    "wgDBserver": {
+      "Description": "Consul: Application: Database endpoint",
+      "Value": {
+        "Fn::GetAtt": [
+          "RDSInstance",
+          "Endpoint.Address"
+        ]
+      }
+    },
+    "wgDBname": {
+      "Description": "Consul: Application: Database name",
+      "Value": { "Ref": "ProjectName" }
+    },
+    "wgDBuser": {
+      "Description": "Consul: Application: Database user",
+      "Value": { "Ref": "ProjectName" }
+    }
+  }
+}
