@@ -30,5 +30,9 @@
   {
     "ParameterKey": "SslCert",
     "ParameterValue": "Consul SSL Cert: Payload data only"
+  },
+  {
+    "ParameterKey": "VpcId",
+    "ParameterValue": "vpc-abcdef123"
   }
 ]

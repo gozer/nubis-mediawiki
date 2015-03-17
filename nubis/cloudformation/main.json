@@ -24,11 +24,11 @@
     },
       "ConsulEndpoint": {
       "Description": "Consul endpoint to connect to.",
-      "Default": "us-west-2.consul.nubis.allizom.org",
+      "Default": "us-west-2.consul.sandbox.nubis.allizom.org",
       "Type": "String",
       "AllowedValues": [
-        "us-west-2.consul.nubis.allizom.org",
-        "us-east-1.consul.nubis.allizom.org"
+        "us-west-2.consul.sandbox.nubis.allizom.org",
+        "us-east-1.consul.sandbox.nubis.allizom.org"
       ]
     },
       "Region": {
@@ -53,16 +53,20 @@
       "Description": "Consul SSL cert",
       "Type": "String",
       "NoEcho": "true"
+    },
+      "VpcId": {
+      "Description": "Id of the VPC",
+      "Type": "String"
     }
   },
 
   "Mappings": {
     "RegionMap": {
       "us-east-1": {
-        "AMI": "ami-18bc9d70"
+        "AMI": "ami-62b5970a"
       },
       "us-west-2": {
-        "AMI": "ami-3b577a0b"
+        "AMI": "ami-456e4275"
       }
     },
     "InstanceTypeMap": {
@@ -79,15 +83,30 @@
   },
 
   "Conditions" : {
-    "CreateSandboxResources" : {"Fn::Equals" : [{"Ref" : "EnvType"}, "sandbox"]},
+    "CreateSandboxResources" : {"Fn::Equals" : [{"Ref" : "EnvType"}, "XXsandbox"]},
     "CreateAutomationResources" : {"Fn::Not" : [{ "Fn::Equals" : [{"Ref" : "EnvType"}, "sandbox"]} ]}
   },
 
   "Resources": {
+    "ELBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Inbound ELB traffic rules",
+        "VpcId": {"Ref" : "VpcId"},
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          }]
+       }
+    },
     "EC2SecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Inbound traffic rules",
+        "VpcId": {"Ref" : "VpcId"},
         "SecurityGroupIngress": [
           {
             "IpProtocol": "tcp",
@@ -156,7 +175,7 @@
                         { "Fn::Join" : [ "", [
                             "NUBIS_ENVIRONMENT='", { "Ref" : "EnvType" }, "'"
                         ]]},
-                        "CONSUL_PUBLIC='1'",
+                        "CONSUL_PUBLIC='0'",
                         { "Fn::Join" : [ "", [
                             "CONSUL_DC='", { "Ref" : "AWS::Region" }, "'"
                         ]]},
@@ -188,6 +207,7 @@
         "Type" : "AWS::AutoScaling::AutoScalingGroup",
         "Properties" : {
             "AvailabilityZones" : { "Fn::GetAZs" : ""},
+            "VPCZoneIdentifier" : [ "subnet-a9139ccc", "subnet-cb3a97bc", "subnet-227fbc7b" ],
             "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
             "MinSize" : "1",
             "MaxSize" : "1",
@@ -204,11 +224,8 @@
     "ELB": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
-        "AvailabilityZones": [
-          "us-west-2a",
-          "us-west-2b",
-          "us-west-2c"
-        ],
+        "Subnets": [ "subnet-dc139cb9", "subnet-ea3a979d", "subnet-3f7fbc66" ],
+        "SecurityGroups": [ { "Ref" : "ELBSecurityGroup" } ],
         "CrossZone": true,
         "Listeners": [
           {
@@ -232,10 +249,11 @@
       "Properties": {
         "AllocatedStorage": "10",
         "DBInstanceClass": "db.t1.micro",
+        "DBSubnetGroupName": { "Ref": "RDSSubnetGroup" },
         "Engine": "mysql",
         "EngineVersion": "5.6.22",
         "MultiAZ": "true",
-        "DBSecurityGroups": [
+        "VPCSecurityGroups": [
           {
             "Ref": "RDSSecurityGroup"
           }
@@ -253,17 +271,23 @@
         ]
       }
     },
+    "RDSSubnetGroup": {
+    "Type" : "AWS::RDS::DBSubnetGroup",
+    "Properties" : {
+       "DBSubnetGroupDescription" : "DB Subnet Group",
+       "SubnetIds" : [ "subnet-a9139ccc", "subnet-cb3a97bc", "subnet-227fbc7b" ]
+      }
+    }, 
     "RDSSecurityGroup": {
-      "Type": "AWS::RDS::DBSecurityGroup",
+      "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "DBSecurityGroupIngress": {
-          "EC2SecurityGroupId": {
-            "Fn::GetAtt": [
-              "EC2SecurityGroup",
-              "GroupId"
-            ]
-          }
-        },
+        "VpcId" : { "Ref" : "VpcId" },
+        "SecurityGroupIngress": {
+          "SourceSecurityGroupId": { "Ref": "EC2SecurityGroup" },
+          "IpProtocol": "tcp",
+          "FromPort": "3306",
+          "ToPort": "3306"
+         },
         "GroupDescription": "Front end instance access",
         "Tags": [
           {

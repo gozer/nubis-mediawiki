@@ -48,7 +48,7 @@ update-consul () {
     wgDBname=$(jq --monochrome-output --raw-output '.[0][] | if .OutputKey == "wgDBname" then .OutputValue else empty end | @text' $IO_FILE)
     wgDBuser=$(jq --monochrome-output --raw-output '.[0][] | if .OutputKey == "wgDBuser" then .OutputValue else empty end | @text' $IO_FILE)
 
-    CONSUL="http://$CONSUL_ENDPOINT:8500/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT/config"
+    CONSUL="http://ui.$CONSUL_ENDPOINT/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT/config"
     curl -s -X PUT -d $wgServer $CONSUL/wgServer
     curl -s -X PUT -d $wgDBserver $CONSUL/wgDBserver
     curl -s -X PUT -d $wgDBname $CONSUL/wgDBname
