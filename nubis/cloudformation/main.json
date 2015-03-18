@@ -17,12 +17,12 @@
       ],
       "ConstraintDescription": "must specify prod, dev, or sandbox."
     },
-      "ConsulSecret": {
+    "ConsulSecret": {
       "Description": "Key to connect to Consul with",
       "Type": "String",
       "NoEcho": "true"
     },
-      "ConsulEndpoint": {
+    "ConsulEndpoint": {
       "Description": "Consul endpoint to connect to.",
       "Default": "us-west-2.consul.sandbox.nubis.allizom.org",
       "Type": "String",
@@ -31,45 +31,45 @@
         "us-east-1.consul.sandbox.nubis.allizom.org"
       ]
     },
-      "Region": {
+    "Region": {
       "Description": "Region to deploy stack into",
       "Type": "String"
     },
-      "BaseZone": {
+    "BaseZone": {
       "Description": "Base zone to create route53 zone in",
       "Default": "nubis.allizom.org",
       "Type": "String"
     },
-      "KeyName": {
+    "KeyName": {
       "Description": "Existing ssh key to deploy to instances",
       "Type": "String"
     },
-      "SslKey": {
+    "SslKey": {
       "Description": "Consul SSL key",
       "Type": "String",
       "NoEcho": "true"
     },
-      "SslCert": {
+    "SslCert": {
       "Description": "Consul SSL cert",
       "Type": "String",
       "NoEcho": "true"
     },
-      "VpcId": {
+    "VpcId": {
       "Description": "Id of the VPC",
+      "Type": "String"
+    },
+    "TechnicalOwner": {
+      "Description": "A valid LDAP email",
+      "Type": "String"
+    },
+    "AmiId": {
+      "Description": "The id if the ami for this region",
       "Type": "String"
     }
   },
 
   "Mappings": {
-    "RegionMap": {
-      "us-east-1": {
-        "AMI": "ami-62b5970a"
-      },
-      "us-west-2": {
-        "AMI": "ami-456e4275"
-      }
-    },
-    "InstanceTypeMap": {
+     "InstanceTypeMap": {
       "prod": {
         "InstanceType": "m3.large"
       },
@@ -99,7 +99,33 @@
             "FromPort": "0",
             "ToPort": "80",
             "CidrIp": "0.0.0.0/0"
-          }]
+          }],
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Load Balancer Security Group"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
        }
     },
     "EC2SecurityGroup": {
@@ -133,28 +159,38 @@
             "CidrIp": "0.0.0.0/0"
           }
         ],
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        ]
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Web Server Security Group"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
       }
     },
     "LaunchConfig" : {
         "Type" : "AWS::AutoScaling::LaunchConfiguration",
         "Properties" : {
-            "ImageId": {
-                "Fn::FindInMap": [
-                    "RegionMap",
-                    {
-                        "Ref": "AWS::Region"
-                    },
-                    "AMI"
-                ]
-            },
+            "ImageId":  { "Ref" : "AmiId" },
             "SecurityGroups" : [ { "Ref" : "EC2SecurityGroup" } ],
             "InstanceType": {
                 "Fn::FindInMap": [
@@ -214,10 +250,35 @@
             "LoadBalancerNames" : [ { "Ref" : "ELB" } ],
             "Tags": [
                 {
-                    "Key": "Environment",
+                    "Key": "ServiceName",
                     "Value": { "Ref": "AWS::StackName" },
                     "PropagateAtLaunch" : "true"
-                }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" },
+                    "PropagateAtLaunch" : "true"
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" },
+                    "PropagateAtLaunch" : "true"
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Web Server",
+                    "PropagateAtLaunch" : "true"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly",
+                    "PropagateAtLaunch" : "true"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never",
+                    "PropagateAtLaunch" : "true"
+              }
             ]
         }
     },
@@ -241,7 +302,33 @@
           "Timeout": "3",
           "Target": "HTTP:80/Special%3AVersion",
           "Interval": "30"
-        }
+        },
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Web Load Balancer"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
       }
     },
     "ElastiCacheSecurityGroup": {
@@ -255,7 +342,33 @@
             "FromPort": "11211",
             "ToPort": "11211",
             "SourceSecurityGroupId": { "Fn::GetAtt": [ "EC2SecurityGroup", "GroupId" ]}
-          }]
+          }],
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Elasticache Security Group"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
        }
     },
     "ElastiCacheSubnetGroup": {
@@ -292,22 +405,66 @@
         ],
         "MasterUsername": { "Ref": "ProjectName" },
         "MasterUserPassword": "provisioner_password",
-        "DBName":  { "Ref": "ProjectName" },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Ref": "ProjectName"
-            }
-          }
-        ]
+        "DBName": { "Ref": "ProjectName" },
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Database Instance"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
       }
     },
     "RDSSubnetGroup": {
     "Type" : "AWS::RDS::DBSubnetGroup",
     "Properties" : {
        "DBSubnetGroupDescription" : "DB Subnet Group",
-       "SubnetIds" : [ "subnet-a9139ccc", "subnet-cb3a97bc", "subnet-227fbc7b" ]
+       "SubnetIds" : [ "subnet-a9139ccc", "subnet-cb3a97bc", "subnet-227fbc7b" ],
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Database Subnet Group"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
       }
     }, 
     "RDSSecurityGroup": {
@@ -321,14 +478,32 @@
           "ToPort": "3306"
          },
         "GroupDescription": "Front end instance access",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        ]
+            "Tags": [
+                {
+                    "Key": "ServiceName",
+                    "Value": { "Ref": "AWS::StackName" }
+                },
+                {
+                    "Key": "TechnicalOwner",
+                    "Value": { "Ref": "TechnicalOwner" }
+                },
+                {
+                    "Key": "Environment",
+                    "Value": { "Ref": "EnvType" }
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "Database Security Group"
+                },
+                {
+                    "Key": "Backups",
+                    "Value": "Nightly"
+                },
+                {
+                    "Key": "Shutdown",
+                    "Value": "Never"
+                }
+            ]
       }
     },
     "HostedZone": {

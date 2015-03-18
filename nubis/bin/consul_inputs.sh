@@ -14,8 +14,6 @@ get-settings () {
         PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "EnvType" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
-        CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
-        CONSUL_SECRET=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulSecret" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         STACK_NAME="nubis-$PROJECT_NAME"
     else
         echo "ERROR: You must specify a json settings file"

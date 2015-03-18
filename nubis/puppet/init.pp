@@ -12,7 +12,6 @@ import 'nubis_configuration.pp'
 
 exec { "apt-get update":
     command => "/usr/bin/apt-get update",
-    onlyif => "/bin/sh -c '[ ! -f /var/cache/apt/pkgcache.bin ] || /usr/bin/find /etc/apt/* -cnewer /var/cache/apt/pkgcache.bin | /bin/grep . > /dev/null'",
 }
 
 package { 'php-apc':
@@ -21,12 +20,12 @@ package { 'php-apc':
 }
 
 package { 'php5-gd':
-  ensure => '5.5.9+dfsg-1ubuntu4.6',
+  ensure => '5.5.9+dfsg-1ubuntu4.7',
   require  => Exec['apt-get update'],
 }
 
 package { 'php5-mysql':
-  ensure => '5.5.9+dfsg-1ubuntu4.6',
+  ensure => '5.5.9+dfsg-1ubuntu4.7',
   require  => Exec['apt-get update'],
 }
 
