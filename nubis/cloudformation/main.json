@@ -83,8 +83,8 @@
   },
 
   "Conditions" : {
-    "CreateSandboxResources" : {"Fn::Equals" : [{"Ref" : "EnvType"}, "XXsandbox"]},
-    "CreateAutomationResources" : {"Fn::Not" : [{ "Fn::Equals" : [{"Ref" : "EnvType"}, "XXsandbox"]} ]}
+    "CreateSandboxResources" : {"Fn::Equals" : [{"Ref" : "EnvType"}, "sandbox"]},
+    "CreateAutomationResources" : {"Fn::Not" : [{ "Fn::Equals" : [{"Ref" : "EnvType"}, "sandbox"]} ]}
   },
 
   "Resources": {
