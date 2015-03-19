@@ -60,14 +60,14 @@ echo " + wgSecretKey=$wgSecretKey"
 wgSecretKey=`curl -s $CONSUL/wgSecretKey?raw=1`
 if [ "$wgSecretKey" == "" ]; then
     wgSecretKey=`uuidgen`
-    curl -s -X PUT -d $wgSecretKey $CONSUL/wgSecretKey 
+    curl -s -X PUT -d $wgSecretKey $CONSUL/wgSecretKey
 fi
 echo " + wgSecretKey=$wgSecretKey"
 
 wgUpgradeKey=`curl -s $CONSUL/wgUpgradeKey?raw=1`
 if [ "$wgUpgradeKey" == "" ]; then
     wgUpgradeKey=`uuidgen`
-    curl -s -X PUT -d $wgUpgradeKey $CONSUL/wgUpgradeKey 
+    curl -s -X PUT -d $wgUpgradeKey $CONSUL/wgUpgradeKey
 fi
 echo " + wgUpgradeKey=$wgUpgradeKey"
 

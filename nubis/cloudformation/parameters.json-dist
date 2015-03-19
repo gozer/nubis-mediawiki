@@ -34,5 +34,13 @@
   {
     "ParameterKey": "VpcId",
     "ParameterValue": "vpc-abcdef123"
+  },
+  {
+    "ParameterKey": "TechnicalOwner",
+    "ParameterValue": "email"
+  },
+  {
+    "ParameterKey": "AmiId",
+    "ParameterValue": "ami-abcdef123"
   }
 ]
