@@ -366,6 +366,9 @@
     "AutoScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "UpdatePolicy": {
+        "AutoScalingScheduledAction": {
+          "IgnoreUnmodifiedGroupSizeProperties": "true"
+        },
         "AutoScalingRollingUpdate": {
           "MinInstancesInService": "1",
           "MaxBatchSize": "1",
