@@ -44,9 +44,11 @@ while [ "$CONSUL_UP" != "0" ]; do
         CONSUL_UP=-2
     fi
 
-    $LOGGER "Consul not ready yet ($CONSUL_UP). Sleeping 10 seconds before retrying..."
-    sleep 10
-    COUNT=${COUNT}+1
+    if [ "$CONSUL_UP" != "0" ]; then
+      $LOGGER "Consul not ready yet ($CONSUL_UP). Sleeping 10 seconds before retrying..."
+      sleep 10
+      COUNT=${COUNT}+1
+    fi
 done
 
 # Generate and set the secrets for the app
