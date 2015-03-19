@@ -16,6 +16,8 @@ get-settings () {
         CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT="ui.$CONSUL_ENDPOINT"
         STACK_NAME="nubis-$PROJECT_NAME"
+    elif [ "$CONSUL_ENDPOINT" != "" ]; then
+        echo "Using Environment for configuration"
     else
         echo "ERROR: You must specify a json settings file"
         exit 1
