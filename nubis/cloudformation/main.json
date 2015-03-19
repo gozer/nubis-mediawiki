@@ -365,6 +365,14 @@
     },
     "AutoScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "WaitOnResourceSignals": "false",
+          "PauseTime": "PT1M"
+        }
+      },
       "Properties": {
         "AvailabilityZones": {
           "Fn::GetAZs": ""
@@ -378,7 +386,8 @@
           "Ref": "LaunchConfig"
         },
         "MinSize": "1",
-        "MaxSize": "1",
+        "DesiredCapacity": "1",
+        "MaxSize": "2",
         "LoadBalancerNames": [
           {
             "Ref": "ELB"
