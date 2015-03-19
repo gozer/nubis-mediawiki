@@ -91,7 +91,7 @@ while [ "$KEYS_UP" != "0" ]; do
         sleep 30
         COUNT=${COUNT}+1
     else
-        $KEYS_UP=0
+        KEYS_UP=0
     fi
 done
 
