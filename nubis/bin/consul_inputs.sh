@@ -14,6 +14,7 @@ get-settings () {
         PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "EnvType" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
+        CONSUL_ENDPOINT="ui.$CONSUL_ENDPOINT"
         STACK_NAME="nubis-$PROJECT_NAME"
     else
         echo "ERROR: You must specify a json settings file"
@@ -42,7 +43,7 @@ update-consul () {
         exit 1
     fi
 
-    CONSUL="http://ui.$CONSUL_ENDPOINT/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT"
+    CONSUL="http://$CONSUL_ENDPOINT/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT"
     COUNT=0
     NUM_OUTPUTS=$(jq --monochrome-output --raw-output '.[0] | length' $IO_FILE)
     while [ $COUNT -lt $NUM_OUTPUTS ]; do
