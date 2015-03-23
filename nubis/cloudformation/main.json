@@ -57,6 +57,14 @@
       "Description": "Id of the VPC",
       "Type": "String"
     },
+    "Subnets": {
+      "Description": "Coma, seperated, list, of, subnets",
+      "Type": "CommaDelimitedList"
+    },
+    "ELBSubnets": {
+      "Description": "ELBs live in their own coma, seperated, list, of, subnets",
+      "Type": "CommaDelimitedList"
+    },
     "TechnicalOwner": {
       "Description": "A valid LDAP email",
       "Type": "String"
@@ -381,9 +389,30 @@
           "Fn::GetAZs": ""
         },
         "VPCZoneIdentifier": [
-          "subnet-a9139ccc",
-          "subnet-cb3a97bc",
-          "subnet-227fbc7b"
+           {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          }
         ],
         "LaunchConfigurationName": {
           "Ref": "LaunchConfig"
@@ -440,9 +469,30 @@
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
         "Subnets": [
-          "subnet-dc139cb9",
-          "subnet-ea3a979d",
-          "subnet-3f7fbc66"
+           {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          }
         ],
         "SecurityGroups": [
           {
@@ -558,9 +608,30 @@
       "Properties": {
         "Description": "ElastiCache Subnet Group",
         "SubnetIds": [
-          "subnet-a9139ccc",
-          "subnet-cb3a97bc",
-          "subnet-227fbc7b"
+           {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          }
         ]
       }
     },
@@ -646,9 +717,30 @@
       "Properties": {
         "DBSubnetGroupDescription": "DB Subnet Group",
         "SubnetIds": [
-          "subnet-a9139ccc",
-          "subnet-cb3a97bc",
-          "subnet-227fbc7b"
+          {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          }
         ],
         "Tags": [
           {

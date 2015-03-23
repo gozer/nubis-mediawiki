@@ -36,6 +36,14 @@
     "ParameterValue": "vpc-abcdef123"
   },
   {
+    "ParameterKey": "Subnets",
+    "ParameterValue": "subnet-123, subnet-456, subnet-789"
+  },
+  {
+    "ParameterKey": "ELBSubnets",
+    "ParameterValue": "subnet-abc, subnet-def, subnet-ghi"
+  },
+  {
     "ParameterKey": "TechnicalOwner",
     "ParameterValue": "email"
   },
