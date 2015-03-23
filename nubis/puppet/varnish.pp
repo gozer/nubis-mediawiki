@@ -8,6 +8,7 @@ class {'varnish':
 }
 
 class {'varnish::ncsa': }
+
 class { 'varnish::vcl': 
   backends => {}, # without this line you will not be able to redefine backend 'default'
 }

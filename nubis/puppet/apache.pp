@@ -10,6 +10,7 @@ $install_root = '/var/www/mediawiki'
 class {
     'apache':
         default_mods        => true,
+        default_vhost       => false,
         default_confd_files => false,
         mpm_module          => 'prefork';
     'apache::mod::php':
