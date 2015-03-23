@@ -7,6 +7,7 @@
 import 'apache.pp'
 import 'mysql.pp'
 import 'fluentd.pp'
+import 'varnish.pp'
 import 'nubis_configuration.pp'
 #include nubis_configuration
 

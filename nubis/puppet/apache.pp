@@ -16,7 +16,7 @@ class {
 }
 
 apache::vhost { $::vhost_name:
-    port          => '80',
+    port          => '8080',
     default_vhost => true,
     docroot       => $::install_root,
     docroot_owner => 'ubuntu',
