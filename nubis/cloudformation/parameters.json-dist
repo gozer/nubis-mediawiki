@@ -4,7 +4,7 @@
     "ParameterValue": "mediawiki"
   }, 
   {
-    "ParameterKey": "EnvType",
+    "ParameterKey": "Environment",
     "ParameterValue": "sandbox"
   }, 
   {

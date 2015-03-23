@@ -5,7 +5,7 @@
       "Description": "Name of this project",
       "Type": "String"
     },
-    "EnvType": {
+    "Environment": {
       "Description": "Environment we are deploying into",
       "Default": "sandbox",
       "Type": "String",
@@ -91,7 +91,7 @@
     "CreateSandboxResources": {
       "Fn::Equals": [
         {
-          "Ref": "EnvType"
+          "Ref": "Environment"
         },
         "sandbox"
       ]
@@ -101,7 +101,7 @@
         {
           "Fn::Equals": [
             {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "sandbox"
           ]
@@ -141,7 +141,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -208,7 +208,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -241,7 +241,7 @@
           "Fn::FindInMap": [
             "InstanceTypeMap",
             {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "InstanceType"
           ]
@@ -272,7 +272,7 @@
                     [
                       "NUBIS_ENVIRONMENT='",
                       {
-                        "Ref": "EnvType"
+                        "Ref": "Environment"
                       },
                       "'"
                     ]
@@ -443,7 +443,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "PropagateAtLaunch": "true"
           },
@@ -531,7 +531,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -585,7 +585,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -694,7 +694,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -758,7 +758,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -807,7 +807,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -837,7 +837,7 @@
                 "Ref": "ProjectName"
               },
               {
-                "Ref": "EnvType"
+                "Ref": "Environment"
               },
               {
                 "Ref": "BaseZone"
@@ -860,7 +860,7 @@
               },
               ".",
               {
-                "Ref": "EnvType"
+                "Ref": "Environment"
               },
               ".",
               {
@@ -881,7 +881,7 @@
               },
               ".",
               {
-                "Ref": "EnvType"
+                "Ref": "Environment"
               },
               ".",
               {
@@ -925,7 +925,7 @@
               "Ref": "ProjectName"
             },
             {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "nubis.allizom.org"
           ]
