@@ -26,4 +26,4 @@ bash nubis/bin/consul_inputs.sh --settings nubis/cloudformation/parameters.json 
 
 #### Nested Stacks
 
-We are using nested stacks to deploy the necessayr resources. You can find the nested stack templates at nubisproject/nubis-stacks
+We are using nested stacks to deploy the necessayr resources. You can find the nested stack templates at [nubis-stacks](https://github.com/Nubisproject/nubis-stacks).
