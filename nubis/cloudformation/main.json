@@ -5,7 +5,7 @@
       "Description": "Name of this project",
       "Type": "String"
     },
-    "EnvType": {
+    "Environment": {
       "Description": "Environment we are deploying into",
       "Default": "sandbox",
       "Type": "String",
@@ -57,6 +57,14 @@
       "Description": "Id of the VPC",
       "Type": "String"
     },
+    "Subnets": {
+      "Description": "Coma, seperated, list, of, subnets",
+      "Type": "CommaDelimitedList"
+    },
+    "ELBSubnets": {
+      "Description": "ELBs live in their own coma, seperated, list, of, subnets",
+      "Type": "CommaDelimitedList"
+    },
     "TechnicalOwner": {
       "Description": "A valid LDAP email",
       "Type": "String"
@@ -83,7 +91,7 @@
     "CreateSandboxResources": {
       "Fn::Equals": [
         {
-          "Ref": "EnvType"
+          "Ref": "Environment"
         },
         "sandbox"
       ]
@@ -93,7 +101,7 @@
         {
           "Fn::Equals": [
             {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "sandbox"
           ]
@@ -133,7 +141,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -200,7 +208,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -233,7 +241,7 @@
           "Fn::FindInMap": [
             "InstanceTypeMap",
             {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "InstanceType"
           ]
@@ -264,7 +272,7 @@
                     [
                       "NUBIS_ENVIRONMENT='",
                       {
-                        "Ref": "EnvType"
+                        "Ref": "Environment"
                       },
                       "'"
                     ]
@@ -381,9 +389,30 @@
           "Fn::GetAZs": ""
         },
         "VPCZoneIdentifier": [
-          "subnet-a9139ccc",
-          "subnet-cb3a97bc",
-          "subnet-227fbc7b"
+           {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          }
         ],
         "LaunchConfigurationName": {
           "Ref": "LaunchConfig"
@@ -414,7 +443,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "PropagateAtLaunch": "true"
           },
@@ -440,9 +469,30 @@
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
         "Subnets": [
-          "subnet-dc139cb9",
-          "subnet-ea3a979d",
-          "subnet-3f7fbc66"
+           {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          }
         ],
         "SecurityGroups": [
           {
@@ -481,7 +531,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -535,7 +585,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -558,9 +608,30 @@
       "Properties": {
         "Description": "ElastiCache Subnet Group",
         "SubnetIds": [
-          "subnet-a9139ccc",
-          "subnet-cb3a97bc",
-          "subnet-227fbc7b"
+           {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          }
         ]
       }
     },
@@ -623,7 +694,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -646,9 +717,30 @@
       "Properties": {
         "DBSubnetGroupDescription": "DB Subnet Group",
         "SubnetIds": [
-          "subnet-a9139ccc",
-          "subnet-cb3a97bc",
-          "subnet-227fbc7b"
+          {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          }
         ],
         "Tags": [
           {
@@ -666,7 +758,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -715,7 +807,7 @@
           {
             "Key": "Environment",
             "Value": {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             }
           },
           {
@@ -745,7 +837,7 @@
                 "Ref": "ProjectName"
               },
               {
-                "Ref": "EnvType"
+                "Ref": "Environment"
               },
               {
                 "Ref": "BaseZone"
@@ -768,7 +860,7 @@
               },
               ".",
               {
-                "Ref": "EnvType"
+                "Ref": "Environment"
               },
               ".",
               {
@@ -789,7 +881,7 @@
               },
               ".",
               {
-                "Ref": "EnvType"
+                "Ref": "Environment"
               },
               ".",
               {
@@ -833,7 +925,7 @@
               "Ref": "ProjectName"
             },
             {
-              "Ref": "EnvType"
+              "Ref": "Environment"
             },
             "nubis.allizom.org"
           ]
