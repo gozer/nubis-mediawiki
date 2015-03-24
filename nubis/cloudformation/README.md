@@ -23,3 +23,7 @@ After creating or updating a stack you might need to update Consul. Run this com
 ```bash
 bash nubis/bin/consul_inputs.sh --settings nubis/cloudformation/parameters.json get-and-update
 ```
+
+#### Nested Stacks
+
+We are using nested stacks to deploy the necessayr resources. You can find the nested stack templates at [nubis-stacks](https://github.com/Nubisproject/nubis-stacks).

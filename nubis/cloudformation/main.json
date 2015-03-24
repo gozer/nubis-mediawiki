@@ -1,8 +1,9 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Demo Mediawiki deployment for the nubis project.",
   "Parameters": {
     "ProjectName": {
-      "Description": "Name of this project",
+      "Description": "Name of this deployment",
       "Type": "String"
     },
     "Environment": {
@@ -14,7 +15,7 @@
         "dev",
         "sandbox"
       ],
-      "ConstraintDescription": "must specify prod, dev, or sandbox."
+      "ConstraintDescription": "Must specify prod, dev, or sandbox."
     },
     "ConsulSecret": {
       "Description": "Key to connect to Consul with",
@@ -70,837 +71,208 @@
       "Type": "String"
     },
     "AmiId": {
-      "Description": "The id if the ami for this region",
+      "Description": "The id of the ami for this region",
       "Type": "String"
     }
   },
-  "Mappings": {
-    "InstanceTypeMap": {
-      "prod": {
-        "InstanceType": "m3.large"
-      },
-      "dev": {
-        "InstanceType": "m3.medium"
-      },
-      "sandbox": {
-        "InstanceType": "m3.medium"
-      }
-    }
-  },
-  "Conditions": {
-    "CreateSandboxResources": {
-      "Fn::Equals": [
-        {
-          "Ref": "Environment"
-        },
-        "sandbox"
-      ]
-    },
-    "CreateAutomationResources": {
-      "Fn::Not": [
-        {
-          "Fn::Equals": [
-            {
-              "Ref": "Environment"
-            },
-            "sandbox"
-          ]
-        }
-      ]
-    }
-  },
   "Resources": {
-    "ELBSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
+    "EC2Stack": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "GroupDescription": "Inbound ELB traffic rules",
-        "VpcId": {
-          "Ref": "VpcId"
-        },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "0",
-            "ToPort": "80",
-            "CidrIp": "0.0.0.0/0"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/ec2.template",
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ServiceName": {
+            "Ref": "AWS::StackName"
           },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
           },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
+          "Environment": {
+            "Ref": "Environment"
           },
-          {
-            "Key": "Purpose",
-            "Value": "Load Balancer Security Group"
+          "VpcId": {
+            "Ref": "VpcId"
           },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "EC2SecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Inbound traffic rules",
-        "VpcId": {
-          "Ref": "VpcId"
-        },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "0",
-            "ToPort": "22",
-            "CidrIp": "0.0.0.0/0"
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "0",
-            "ToPort": "80",
-            "CidrIp": "0.0.0.0/0"
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "8300",
-            "ToPort": "8303",
-            "CidrIp": "0.0.0.0/0"
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "8300",
-            "ToPort": "8303",
-            "CidrIp": "0.0.0.0/0"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
-          },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
-          },
-          {
-            "Key": "Purpose",
-            "Value": "Web Server Security Group"
-          },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "LaunchConfig": {
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
-        "ImageId": {
-          "Ref": "AmiId"
-        },
-        "SecurityGroups": [
-          {
-            "Ref": "EC2SecurityGroup"
-          }
-        ],
-        "InstanceType": {
-          "Fn::FindInMap": [
-            "InstanceTypeMap",
-            {
-              "Ref": "Environment"
-            },
-            "InstanceType"
-          ]
-        },
-        "KeyName": {
-          "Ref": "KeyName"
-        },
-        "UserData": {
-          "Fn::Base64": {
+          "Subnets": {
             "Fn::Join": [
-              "\n",
-              [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "NUBIS_PROJECT='",
-                      {
-                        "Ref": "ProjectName"
-                      },
-                      "'"
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "NUBIS_ENVIRONMENT='",
-                      {
-                        "Ref": "Environment"
-                      },
-                      "'"
-                    ]
-                  ]
-                },
-                "CONSUL_PUBLIC='0'",
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "CONSUL_DC='",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      "'"
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "CONSUL_SECRET='",
-                      {
-                        "Ref": "ConsulSecret"
-                      },
-                      "'"
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "CONSUL_JOIN='",
-                      {
-                        "Ref": "ConsulEndpoint"
-                      },
-                      "'"
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "CONSUL_KEY=",
-                      {
-                        "Fn::Join": [
-                          "\n",
-                          [
-                            "\"-----BEGIN PRIVATE KEY-----",
-                            {
-                              "Ref": "SslKey"
-                            },
-                            "-----END PRIVATE KEY-----\""
-                          ]
-                        ]
-                      }
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "CONSUL_CERT=",
-                      {
-                        "Fn::Join": [
-                          "\n",
-                          [
-                            "\"-----BEGIN CERTIFICATE-----",
-                            {
-                              "Ref": "SslCert"
-                            },
-                            "-----END CERTIFICATE-----\""
-                          ]
-                        ]
-                      }
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "NUBIS_MIGRATE='",
-                      "1",
-                      "'"
-                    ]
-                  ]
-                }
-              ]
-            ]
-          }
-        }
-      }
-    },
-    "AutoScalingGroup": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "UpdatePolicy": {
-        "AutoScalingScheduledAction": {
-          "IgnoreUnmodifiedGroupSizeProperties": "true"
-        },
-        "AutoScalingRollingUpdate": {
-          "MinInstancesInService": "1",
-          "MaxBatchSize": "1",
-          "WaitOnResourceSignals": "false",
-          "PauseTime": "PT1M"
-        }
-      },
-      "Properties": {
-        "AvailabilityZones": {
-          "Fn::GetAZs": ""
-        },
-        "VPCZoneIdentifier": [
-           {
-            "Fn::Select": [
-              "0",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          },
-          {
-            "Fn::Select": [
-              "1",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          },
-          {
-            "Fn::Select": [
-              "2",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          }
-        ],
-        "LaunchConfigurationName": {
-          "Ref": "LaunchConfig"
-        },
-        "MinSize": "1",
-        "DesiredCapacity": "1",
-        "MaxSize": "2",
-        "LoadBalancerNames": [
-          {
-            "Ref": "ELB"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            },
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            },
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            },
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "Purpose",
-            "Value": "Web Server",
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "Backups",
-            "Value": "Nightly",
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never",
-            "PropagateAtLaunch": "true"
-          }
-        ]
-      }
-    },
-    "ELB": {
-      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Properties": {
-        "Subnets": [
-           {
-            "Fn::Select": [
-              "0",
+              ",",
               {
                 "Ref": "ELBSubnets"
               }
             ]
           },
-          {
-            "Fn::Select": [
-              "1",
-              {
-                "Ref": "ELBSubnets"
-              }
-            ]
+          "AmiId": {
+            "Ref": "AmiId"
           },
-          {
-            "Fn::Select": [
-              "2",
-              {
-                "Ref": "ELBSubnets"
-              }
-            ]
-          }
-        ],
-        "SecurityGroups": [
-          {
-            "Ref": "ELBSecurityGroup"
-          }
-        ],
-        "CrossZone": true,
-        "Listeners": [
-          {
-            "InstancePort": "80",
-            "InstanceProtocol": "HTTP",
-            "LoadBalancerPort": "80",
-            "Protocol": "HTTP"
-          }
-        ],
-        "HealthCheck": {
-          "HealthyThreshold": "2",
-          "UnhealthyThreshold": "2",
-          "Timeout": "3",
-          "Target": "HTTP:80/Special%3AVersion",
-          "Interval": "30"
-        },
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
+          "KeyName": {
+            "Ref": "KeyName"
           },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
+          "ProjectName": {
+            "Ref": "ProjectName"
           },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
+          "ConsulEndpoint": {
+            "Ref": "ConsulEndpoint"
           },
-          {
-            "Key": "Purpose",
-            "Value": "Web Load Balancer"
+          "ConsulSecret": {
+            "Ref": "ConsulSecret"
           },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
+          "SslKey": {
+            "Ref": "SslKey"
           },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "ElastiCacheSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Inbound ElastiCache traffic rules",
-        "VpcId": {
-          "Ref": "VpcId"
-        },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "11211",
-            "ToPort": "11211",
-            "SourceSecurityGroupId": {
-              "Fn::GetAtt": [
-                "EC2SecurityGroup",
-                "GroupId"
-              ]
-            }
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
+          "SslCert": {
+            "Ref": "SslCert"
           },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
-          },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
-          },
-          {
-            "Key": "Purpose",
-            "Value": "Elasticache Security Group"
-          },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "ElastiCacheSubnetGroup": {
-      "Type": "AWS::ElastiCache::SubnetGroup",
-      "Properties": {
-        "Description": "ElastiCache Subnet Group",
-        "SubnetIds": [
-           {
-            "Fn::Select": [
-              "0",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          },
-          {
-            "Fn::Select": [
-              "1",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          },
-          {
-            "Fn::Select": [
-              "2",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "ElastiCache": {
-      "Type": "AWS::ElastiCache::CacheCluster",
-      "Properties": {
-        "CacheNodeType": "cache.m3.medium",
-        "Engine": "memcached",
-        "EngineVersion": "1.4.14",
-        "NumCacheNodes": "1",
-        "VpcSecurityGroupIds": [
-          {
+          "ELB": {
             "Fn::GetAtt": [
-              "ElastiCacheSecurityGroup",
-              "GroupId"
+              "ELBStack",
+              "Outputs.ELB"
             ]
           }
-        ],
-        "CacheSubnetGroupName": {
-          "Ref": "ElastiCacheSubnetGroup"
         }
       }
     },
-    "RDSInstance": {
-      "Type": "AWS::RDS::DBInstance",
+    "ELBStack": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "AllocatedStorage": "10",
-        "DBInstanceClass": "db.t1.micro",
-        "DBSubnetGroupName": {
-          "Ref": "RDSSubnetGroup"
-        },
-        "Engine": "mysql",
-        "EngineVersion": "5.6.22",
-        "MultiAZ": "true",
-        "VPCSecurityGroups": [
-          {
-            "Ref": "RDSSecurityGroup"
-          }
-        ],
-        "MasterUsername": {
-          "Ref": "ProjectName"
-        },
-        "MasterUserPassword": "provisioner_password",
-        "DBName": {
-          "Ref": "ProjectName"
-        },
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/elb.template",
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ServiceName": {
+            "Ref": "AWS::StackName"
           },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
           },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
+          "Environment": {
+            "Ref": "Environment"
           },
-          {
-            "Key": "Purpose",
-            "Value": "Database Instance"
+          "VpcId": {
+            "Ref": "VpcId"
           },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "RDSSubnetGroup": {
-      "Type": "AWS::RDS::DBSubnetGroup",
-      "Properties": {
-        "DBSubnetGroupDescription": "DB Subnet Group",
-        "SubnetIds": [
-          {
-            "Fn::Select": [
-              "0",
+          "Subnets": {
+            "Fn::Join": [
+              ",",
               {
-                "Ref": "Subnets"
-              }
-            ]
-          },
-          {
-            "Fn::Select": [
-              "1",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          },
-          {
-            "Fn::Select": [
-              "2",
-              {
-                "Ref": "Subnets"
+                "Ref": "ELBSubnets"
               }
             ]
           }
-        ],
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
-          },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
-          },
-          {
-            "Key": "Purpose",
-            "Value": "Database Subnet Group"
-          },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "RDSSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VpcId"
-        },
-        "SecurityGroupIngress": {
-          "SourceSecurityGroupId": {
-            "Ref": "EC2SecurityGroup"
-          },
-          "IpProtocol": "tcp",
-          "FromPort": "3306",
-          "ToPort": "3306"
-        },
-        "GroupDescription": "Front end instance access",
-        "Tags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
-          },
-          {
-            "Key": "Environment",
-            "Value": {
-              "Ref": "Environment"
-            }
-          },
-          {
-            "Key": "Purpose",
-            "Value": "Database Security Group"
-          },
-          {
-            "Key": "Backups",
-            "Value": "Nightly"
-          },
-          {
-            "Key": "Shutdown",
-            "Value": "Never"
-          }
-        ]
-      }
-    },
-    "HostedZone": {
-      "Type": "AWS::Route53::HostedZone",
-      "Condition": "CreateSandboxResources",
-      "Properties": {
-        "Name": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "ProjectName"
-              },
-              {
-                "Ref": "Environment"
-              },
-              {
-                "Ref": "BaseZone"
-              }
-            ]
-          ]
         }
       }
     },
-    "WWWRecord": {
-      "Type": "AWS::Route53::RecordSet",
-      "Condition": "CreateAutomationResources",
+    "RDSStack": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "HostedZoneName": {
-          "Fn::Join": [
-            "",
-            [
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/rds.template",
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ServiceName": {
+            "Ref": "AWS::StackName"
+          },
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
+          },
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "VpcId": {
+            "Ref": "VpcId"
+          },
+          "Subnets": {
+            "Fn::Join": [
+              ",",
               {
-                "Ref": "ProjectName"
-              },
-              ".",
-              {
-                "Ref": "Environment"
-              },
-              ".",
-              {
-                "Ref": "BaseZone"
-              },
-              "."
+                "Ref": "Subnets"
+              }
             ]
-          ]
-        },
-        "Name": {
-          "Fn::Join": [
-            "",
-            [
-              "www",
-              ".",
-              {
-                "Ref": "ProjectName"
-              },
-              ".",
-              {
-                "Ref": "Environment"
-              },
-              ".",
-              {
-                "Ref": "BaseZone"
-              },
-              "."
-            ]
-          ]
-        },
-        "Type": "CNAME",
-        "TTL": "300",
-        "ResourceRecords": [
-          {
+          },
+          "ProjectName": {
+            "Ref": "ProjectName"
+          },
+          "EC2SecurityGroup": {
             "Fn::GetAtt": [
-              "ELB",
-              "DNSName"
+              "EC2Stack",
+              "Outputs.EC2SecurityGroup"
             ]
           }
-        ]
+        }
+      }
+    },
+    "MemcacheStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/memcache.template",
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ServiceName": {
+            "Ref": "AWS::StackName"
+          },
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
+          },
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "VpcId": {
+            "Ref": "VpcId"
+          },
+          "Subnets": {
+            "Fn::Join": [
+              ",",
+              {
+                "Ref": "Subnets"
+              }
+            ]
+          },
+          "EC2SecurityGroup": {
+            "Fn::GetAtt": [
+              "EC2Stack",
+              "Outputs.GroupId"
+            ]
+          }
+        }
+      }
+    },
+    "Route53Stack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/route53.template",
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ServiceName": {
+            "Ref": "AWS::StackName"
+          },
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
+          },
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "VpcId": {
+            "Ref": "VpcId"
+          },
+          "Subnets": {
+            "Fn::Join": [
+              ",",
+              {
+                "Ref": "ELBSubnets"
+              }
+            ]
+          },
+          "ProjectName": {
+            "Ref": "ProjectName"
+          },
+          "BaseZone": {
+            "Ref": "BaseZone"
+          },
+          "ELBStack": {
+            "Fn::GetAtt": [
+              "ELBStack",
+              "Outputs.DNSName"
+            ]
+          }
+        }
       }
     }
   },
@@ -909,8 +281,8 @@
       "Description": "Consul: / ELB CNAME",
       "Value": {
         "Fn::GetAtt": [
-          "ELB",
-          "DNSName"
+          "ELBStack",
+          "Outputs.DNSName"
         ]
       }
     },
@@ -936,21 +308,27 @@
       "Description": "Consul: config/ Database endpoint",
       "Value": {
         "Fn::GetAtt": [
-          "RDSInstance",
-          "Endpoint.Address"
+          "RDSStack",
+          "Outputs.RDSEndpoint"
         ]
       }
     },
     "wgDBname": {
       "Description": "Consul: config/ Database name",
       "Value": {
-        "Ref": "ProjectName"
+        "Fn::GetAtt": [
+          "RDSStack",
+          "Outputs.RDSName"
+        ]
       }
     },
     "wgDBuser": {
       "Description": "Consul: config/ Database user",
       "Value": {
-        "Ref": "ProjectName"
+        "Fn::GetAtt": [
+          "RDSStack",
+          "Outputs.RDSUser"
+        ]
       }
     },
     "wgMemCachedServers": {
@@ -962,15 +340,15 @@
             "array('",
             {
               "Fn::GetAtt": [
-                "ElastiCache",
-                "ConfigurationEndpoint.Address"
+                "MemcacheStack",
+                "Outputs.Endpoint"
               ]
             },
             ":",
             {
               "Fn::GetAtt": [
-                "ElastiCache",
-                "ConfigurationEndpoint.Port"
+                "MemcacheStack",
+                "Outputs.Port"
               ]
             },
             "')"
