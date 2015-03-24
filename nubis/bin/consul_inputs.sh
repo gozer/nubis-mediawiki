@@ -12,7 +12,7 @@
 get-settings () {
     if [ -f ${SETTINGS_FILE:-0} ]; then
         PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
-        NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "EnvType" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
+        NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "Environment" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT="ui.$CONSUL_ENDPOINT"
         STACK_NAME="nubis-$PROJECT_NAME"
