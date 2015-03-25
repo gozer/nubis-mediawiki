@@ -22,3 +22,15 @@ varnish::backend { 'default':
   port  => '8080',
   probe => 'mediawiki_version',
 }
+
+fluentd::configfile { 'varnish': }
+
+fluentd::source { 'varnish_access':
+  configfile => 'varnish',
+  type       => 'tail',
+  format     => 'apache2',
+  tag        => 'forward.varnish.access',
+  config     => {
+    'path' => '/var/log/varnish/varnishncsa.log',
+  },
+}
