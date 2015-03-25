@@ -129,3 +129,5 @@ $wgDiff3 = "/usr/bin/diff3";
 
 # Source the consul settings file
 require_once('/etc/nubis-config/mediawiki.php');
+
+$wgMemCachedServers = array( "$MemCachedEndpoint:$MemCachedPort" );
