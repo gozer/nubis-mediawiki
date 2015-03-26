@@ -35,8 +35,19 @@ get-outputs () {
 }
 
 get-route53-nameservers () {
-    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --logical-resource-id  HostedZone --query StackResources[*].PhysicalResourceId --output text)
-    aws route53 get-hosted-zone --id $ZONE_ID --query DelegationSet.NameServers
+    STACK_ID=$(aws cloudformation describe-stack-resources --stack-name nubis-mediawiki --query 'StackResources[?LogicalResourceId == `Route53Stack`].PhysicalResourceId' --output text)
+    # Single stack quety
+#    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --logical-resource-id  HostedZone --query StackResources[*].PhysicalResourceId --output text)
+    # Nested stack query
+    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[*].PhysicalResourceId' --output text)
+    aws route53 get-hosted-zone --id $ZONE_ID --query DelegationSet.NameServers --output table
+}
+
+get-ec2-instance-ip () {
+    STACK_ID=$(aws cloudformation describe-stack-resources --stack-name nubis-mediawiki --query 'StackResources[?LogicalResourceId == `EC2Stack`].PhysicalResourceId' --output text)
+    AS_GROUP=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[?LogicalResourceId == `AutoScalingGroup`].PhysicalResourceId' --output text)
+    INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query "AutoScalingInstances[?AutoScalingGroupName == \`$AS_GROUP\`].InstanceId" --output text)
+    aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text
 }
 
 update-consul () {
@@ -125,20 +136,33 @@ while [ "$1" != "" ]; do
             # This simply grabs everything defined as an output and dumps it.
             # See --file if you wish to save to a file without a redirect
             get-outputs
+            GOT_COMMAND=1
         ;;
         update-consul )
             # Just pushes data to Consul, requires --file or stdin
             update-consul
+            GOT_COMMAND=1
         ;;
         get-route53-nameservers | get-ns)
             # Collect the Route53 ZoneId from AWS
             get-route53-nameservers
+            GOT_COMMAND=1
         ;;
-
+        get-ec2-instance-ip | get-ip)
+            # Collect the ec2 instance ip from AWS
+            get-ec2-instance-ip
+            GOT_COMMAND=1
+        ;;
         io | get-and-update )
             # Get the outputs from AWS and put them in Consul
             get-and-update
+            GOT_COMMAND=1
         ;;
     esac
     shift
 done
+
+# If we did not get a valid command print the help message
+if [ ${GOT_COMMAND:-0} == 0 ]; then
+    $0 --help
+fi
