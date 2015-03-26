@@ -11,7 +11,7 @@ aws cloudformation create-stack --debug --stack-name nubis-mediawiki --template-
 
 To update and existing stack:
 ```bash
-aws cloudformation update-stack --debug --stack-name nubis-mediawiki --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json
+aws cloudformation update-stack --stack-name nubis-mediawiki --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json
 ```
 
 To delete the stack:

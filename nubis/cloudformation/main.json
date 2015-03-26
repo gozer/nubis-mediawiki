@@ -75,6 +75,19 @@
       "Type": "String"
     }
   },
+  "Mappings": {
+    "InstanceTypeMap": {
+      "prod": {
+        "InstanceType": "m3.large"
+      },
+      "dev": {
+        "InstanceType": "m3.medium"
+      },
+      "sandbox": {
+        "InstanceType": "m3.medium"
+      }
+    }
+  },
   "Resources": {
     "EC2Stack": {
       "Type": "AWS::CloudFormation::Stack",
@@ -122,6 +135,15 @@
           },
           "SslCert": {
             "Ref": "SslCert"
+          },
+          "InstanceType": {
+            "Fn::FindInMap": [
+              "InstanceTypeMap",
+              {
+                "Ref": "Environment"
+              },
+              "InstanceType"
+            ]
           },
           "ELB": {
             "Fn::GetAtt": [
