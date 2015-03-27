@@ -50,6 +50,9 @@ terraform apply -var-file=nubis/terraform/terraform.tfvars nubis/terraform/
 ```
 This takes around *0m 35.162s*, which you can see is quite speedy.
 
+### Cloudformation
+This can now be deployed using cloudformation. To deploy through cloudformation instead of Terraform see the README file in the nubis/cloudformation directory.
+
 
 ## Quick Commands
 Edit *nubis/terraform/terraform.tfvars*
@@ -62,19 +65,3 @@ nubis-builder build
 
 terraform apply -var-file=nubis/terraform/terraform.tfvars nubis/terraform/
 ```
-
-
-## TODO
-I have a fair bit of work to do before this project is ready for use. Some of the outstanding tasks are:
-* Address route 53 SOA issue [done]
-* Load data to rds instance [done]
-* Configure s3 bucket
-* Create autoscaling group
-* confd integration (/etc/nubis-confog/)[done]
-* Finish migration instance script [done]
-* ~~Play with code install with puppet~~
-* Autogenerate
- * db_password [done]
- * app_secret_key [done]
- * app_upgrade_key [done]
-* Fix security group dependency issues (still?)
