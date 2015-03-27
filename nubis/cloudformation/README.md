@@ -6,7 +6,7 @@ You need to create a parameters.json file. You can use parameters.json-dist as a
 
 To create a new stack:
 ```bash
-aws cloudformation create-stack --debug --stack-name nubis-mediawiki --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json
+aws cloudformation create-stack --stack-name nubis-mediawiki --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json
 ```
 
 To update and existing stack:
