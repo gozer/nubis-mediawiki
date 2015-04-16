@@ -111,7 +111,7 @@
             "Fn::Join": [
               ",",
               {
-                "Ref": "ELBSubnets"
+                "Ref": "Subnets"
               }
             ]
           },
@@ -186,7 +186,7 @@
     "RDSStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/rds.template",
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/rds-mysql.template",
         "TimeoutInMinutes": "60",
         "Parameters": {
           "ServiceName": {
@@ -209,9 +209,9 @@
               }
             ]
           },
-          "ProjectName": {
-            "Ref": "ProjectName"
-          },
+          "AllocatedStorage": "15",
+          "DBInstanceClass": "db.t1.micro",
+          "DBName": "mediawiki",
           "EC2SecurityGroup": {
             "Fn::GetAtt": [
               "EC2Stack",

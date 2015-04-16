@@ -16,6 +16,10 @@ class {
     'apache::mod::php':
 }
 
+apache::mod { 'remoteip': 
+    proxy_ips => [ '127.0.0.1', '10.0.0.0/8' ],
+}
+
 apache::vhost { $::vhost_name:
     port          => '8080',
     default_vhost => true,
