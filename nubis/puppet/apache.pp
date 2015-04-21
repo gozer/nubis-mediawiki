@@ -4,7 +4,7 @@
 # [0] https://github.com/puppetlabs/puppetlabs-apache
 #
 
-$vhost_name = 'nubis-mediawiki.allizom.org'
+$vhost_name = 'mediawiki.nubis.allizom.org'
 $install_root = '/var/www/mediawiki'
 
 class {
@@ -13,7 +13,9 @@ class {
         default_vhost       => false,
         default_confd_files => false,
         mpm_module          => 'prefork';
-    'apache::mod::php':
+    'apache::mod::php':;
+    'apache::mod::remoteip':
+        proxy_ips => [ '127.0.0.1', '10.0.0.0/8' ];
 }
 
 apache::vhost { $::vhost_name:
@@ -22,6 +24,8 @@ apache::vhost { $::vhost_name:
     docroot       => $::install_root,
     docroot_owner => 'ubuntu',
     docroot_group => 'ubuntu',
+    block             => ['scm'],
+    access_log_format => '%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"',
     rewrites      => [
     {
       comment      => 'Dont rewrite requests for files in MediaWiki subdirectories',

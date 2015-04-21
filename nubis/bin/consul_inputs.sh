@@ -9,13 +9,20 @@
 #+ This would require refactering the cloudformation outputs to have part of the consul path in them
 #+ For example, in the database user you would need "config/$DBUSER" instead of the current "$DBUSER".
 
+have-stack-name () {
+    if [ -z $STACK_NAME ]; then
+        echo -e "\nERROR: You must specify a stack name\n\n"
+        $0 --help
+        exit 1
+    fi
+}
+
 get-settings () {
     if [ -f ${SETTINGS_FILE:-0} ]; then
         PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "Environment" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT="ui.$CONSUL_ENDPOINT"
-        STACK_NAME="nubis-$PROJECT_NAME"
     elif [ "$CONSUL_ENDPOINT" != "" ]; then
         echo "Using Environment for configuration"
     else
@@ -25,6 +32,7 @@ get-settings () {
 }
 
 get-outputs () {
+    have-stack-name
     AWS="aws cloudformation describe-stacks --stack-name $STACK_NAME --query Stacks[*].Outputs"
     if [ -f ${IO_FILE:-0} ]; then
         # Output to the file
@@ -35,7 +43,8 @@ get-outputs () {
 }
 
 get-route53-nameservers () {
-    STACK_ID=$(aws cloudformation describe-stack-resources --stack-name nubis-mediawiki --query 'StackResources[?LogicalResourceId == `Route53Stack`].PhysicalResourceId' --output text)
+    have-stack-name
+    STACK_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --query 'StackResources[?LogicalResourceId == `Route53Stack`].PhysicalResourceId' --output text)
     # Single stack quety
 #    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --logical-resource-id  HostedZone --query StackResources[*].PhysicalResourceId --output text)
     # Nested stack query
@@ -44,7 +53,8 @@ get-route53-nameservers () {
 }
 
 get-ec2-instance-ip () {
-    STACK_ID=$(aws cloudformation describe-stack-resources --stack-name nubis-mediawiki --query 'StackResources[?LogicalResourceId == `EC2Stack`].PhysicalResourceId' --output text)
+    have-stack-name
+    STACK_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --query 'StackResources[?LogicalResourceId == `EC2Stack`].PhysicalResourceId' --output text)
     AS_GROUP=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[?LogicalResourceId == `AutoScalingGroup`].PhysicalResourceId' --output text)
     INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query "AutoScalingInstances[?AutoScalingGroupName == \`$AS_GROUP\`].InstanceId" --output text)
     aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text
@@ -59,7 +69,7 @@ update-consul () {
     CONSUL="http://$CONSUL_ENDPOINT/v1/kv/$PROJECT_NAME/$NUBIS_ENVIRONMENT"
     COUNT=0
     NUM_OUTPUTS=$(jq --monochrome-output --raw-output '.[0] | length' $IO_FILE)
-    while [ $COUNT -lt $NUM_OUTPUTS ]; do
+    while [ $COUNT -lt ${NUM_OUTPUTS:-0} ]; do
         # Test to see if the description starts with 'Consul:'
         IS_CONSUL=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .Description" $IO_FILE | cut -d " " -f 1)
         if [ $IS_CONSUL == "Consul:" ]; then
@@ -105,6 +115,11 @@ while [ "$1" != "" ]; do
             shift
             get-settings
         ;;
+        -S | --stack-name )
+            # The name of the stack we are working with
+            STACK_NAME=$2
+            shift
+        ;;
         -f | --file )
             # The name of a file to write the json outputs to.
             # This works regardless of other options to the file if data is being collected from AWS
@@ -114,21 +129,22 @@ while [ "$1" != "" ]; do
         ;;
          -h | -H | --help )
             echo -en "$0\n\n"
-            echo -en "Usage: $0 [options] command\n\n"
+            echo -en "Usage: $0 [options] --stack-name StackName command\n\n"
             echo -en "Commands:\n"
             echo -en "  get-and-update              Run get-outputs followed by update-consul\n"
             echo -en "  get-outputs                 Get defined outputs\n"
             echo -en "  update-consul               Put values into Consul\n"
             echo -en "  get-route53-nameservers     Get the list of Route53 nameservers\n\n"
             echo -en "Options:\n"
-            echo -en "  --help      -h              Print this help information and exit\n"
-            echo -en "  --settings  -s              Specify a file containing settings\n"
+            echo -en "  --help        -h            Print this help information and exit\n"
+            echo -en "  --settings    -s            Specify a file containing settings\n"
             echo -en "                                This file should describe your consul credentials\n"
             echo -en "                                --settings nubis/cloudformation/parameters.json\n"
-            echo -en "  --file      -f              Specify a file for reading and writing in json format\n"
+            echo -en "  --stack-name  -S            Specify the name of the stack\n"
+            echo -en "  --file        -f            Specify a file for reading and writing in json format\n"
             echo -en "                                If get-outputs will write to file (Optional) or print to sdtout\n"
             echo -en "                                If update-consul will read from file\n"
-            echo -en "  --verbose   -v              Turn on verbosity\n"
+            echo -en "  --verbose     -v            Turn on verbosity\n"
             echo -en "                                Basically set -x\n\n"
             exit 0
         ;;
