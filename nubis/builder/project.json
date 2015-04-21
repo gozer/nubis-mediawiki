@@ -7,7 +7,7 @@
     ],
     "project_description": "Nubis Example MediaWiki Application",
     "project_name": "nubis-mediawiki",
-    "project_version": "0.2",
+    "project_version": "0.3",
     "source_ami_project_name": "nubis-base"
   }
 }
