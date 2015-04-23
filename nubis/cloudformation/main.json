@@ -80,17 +80,6 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "VpcId": {
-            "Ref": "VpcId"
-          },
-          "Subnets": {
-            "Fn::Join": [
-              ",",
-              {
-                "Ref": "Subnets"
-              }
-            ]
-          },
           "AmiId": {
             "Ref": "AmiId"
           },
@@ -129,17 +118,6 @@
           },
           "Environment": {
             "Ref": "Environment"
-          },
-          "VpcId": {
-            "Ref": "VpcId"
-          },
-          "Subnets": {
-            "Fn::Join": [
-              ",",
-              {
-                "Ref": "ELBSubnets"
-              }
-            ]
           }
         }
       }
