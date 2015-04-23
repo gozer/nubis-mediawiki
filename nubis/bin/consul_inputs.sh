@@ -1,13 +1,23 @@
 #!/bin/bash
 #
 # This script will get outputs from cloudformation and put them into consul
+#+ Stack outputs are only put in Consul if the Description starts with the word 'Consul'
+#+ Output keys are placed in the Consul tree based on their descriptions second word
+#+ Note that anything following the second word is ignored.
+#+ for example if you had outputs with the descriptions:
+#+ "Consul: config/ Server name"
+#+ "Consul / Region"
+#+ "Some other description"
+#+ You will have a tree that looks like:
+#+ /Region_Value
+#+ /config/Server_Name_Value
 #
-# You mustgive a settings file, typically this is the same parameters file you use with cloudformation
+# You must give a settings file, typically this is the same parameters file you use with cloudformation
+#+ or set the necessary inputs as environment variables
 #
-# TODO: gather all outputs and place them in consul. Right now I am just grabbing the database connection information
-#+ however, it would be better if this script iterated over all outputs and placed them in consul.
-#+ This would require refactering the cloudformation outputs to have part of the consul path in them
-#+ For example, in the database user you would need "config/$DBUSER" instead of the current "$DBUSER".
+
+NUBIS_DOMAIN='nubis.allizom.org'
+REGION='us-west-2'
 
 have-stack-name () {
     if [ -z $STACK_NAME ]; then
@@ -18,15 +28,14 @@ have-stack-name () {
 }
 
 get-settings () {
-    if [ -f ${SETTINGS_FILE:-0} ]; then
+    if [ "${CONSUL_ENDPOINT:-0}" != "0" ]; then
+        echo "Using Environment for configuration"
+    elif [ -f ${SETTINGS_FILE:-0} ]; then
         PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "Environment" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
-        CONSUL_ENDPOINT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ConsulEndpoint" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
-        CONSUL_ENDPOINT="ui.$CONSUL_ENDPOINT"
-    elif [ "$CONSUL_ENDPOINT" != "" ]; then
-        echo "Using Environment for configuration"
+        CONSUL_ENDPOINT="ui.${REGION}.consul.${NUBIS_ENVIRONMENT}.${NUBIS_DOMAIN}"
     else
-        echo "ERROR: You must specify a json settings file"
+        echo "ERROR: You must either specify a json settings file or set environment variables"
         exit 1
     fi
 }
@@ -82,7 +91,7 @@ update-consul () {
 
             KEY=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .OutputKey" $IO_FILE)
             VALUE=$(jq --monochrome-output --raw-output ".[0][$COUNT] | .OutputValue" $IO_FILE)
-            echo "$VALUE $CONSUL_PATH/$KEY"
+            echo "$VALUE ${CONSUL_PATH}${KEY}"
             curl -s -X PUT -d $VALUE ${CONSUL}/${CONSUL_PATH}${KEY}
         fi
         COUNT=$[$COUNT+1]
@@ -120,6 +129,11 @@ while [ "$1" != "" ]; do
             STACK_NAME=$2
             shift
         ;;
+        -r | --region )
+            # The name of the stack we are working with
+            SREGION=$2
+            shift
+        ;;
         -f | --file )
             # The name of a file to write the json outputs to.
             # This works regardless of other options to the file if data is being collected from AWS
@@ -141,6 +155,8 @@ while [ "$1" != "" ]; do
             echo -en "                                This file should describe your consul credentials\n"
             echo -en "                                --settings nubis/cloudformation/parameters.json\n"
             echo -en "  --stack-name  -S            Specify the name of the stack\n"
+            echo -en "  --region      -r            Specify the name of the region your stack is in\n"
+            echo -en "                                this optional parameter overrides the default\n"
             echo -en "  --file        -f            Specify a file for reading and writing in json format\n"
             echo -en "                                If get-outputs will write to file (Optional) or print to sdtout\n"
             echo -en "                                If update-consul will read from file\n"
