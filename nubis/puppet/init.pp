@@ -9,7 +9,7 @@ import 'mysql.pp'
 import 'fluentd.pp'
 import 'varnish.pp'
 import 'nubis_configuration.pp'
-#include nubis_configuration
+import 'nubis_storage.pp'
 
 exec { "apt-get update":
     command => "/usr/bin/apt-get update",
