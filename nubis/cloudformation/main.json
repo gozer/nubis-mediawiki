@@ -33,6 +33,21 @@
     "AmiId": {
       "Description": "The id of the ami for this region",
       "Type": "String"
+    },
+    "StorageClusterSize": {
+      "Description": "The number of nodes in the storage cluster",
+      "Type": "String",
+      "Default": "3"
+    },
+    "StorageVolumeSize": {
+      "Description": "The storage size (in GB) of each member of the storage cluster",
+      "Type": "String",
+      "Default": "16"
+    },
+    "StorageInstanceType": {
+      "Description": "The instance type of each member of the storage cluster",
+      "Type": "String",
+      "Default": "m3.medium"
     }
   },
   "Mappings": {
@@ -178,6 +193,42 @@
             "Fn::GetAtt": [
               "ELBStack",
               "Outputs.DNSName"
+            ]
+          }
+        }
+      }
+    },
+    "StorageStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/storage.template",
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ProjectName": {
+            "Ref": "ProjectName"
+          },
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
+          },
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "KeyName": {
+            "Ref": "KeyName"
+          },
+          "InstanceType": {
+            "Ref": "StorageInstanceType"
+          },
+          "ClusterSize": {
+            "Ref": "StorageClusterSize"
+          },
+          "VolumeSize": {
+            "Ref": "StorageVolumeSize"
+          },
+          "EC2SecurityGroup": {
+            "Fn::GetAtt": [
+              "EC2Stack",
+              "Outputs.GroupId"
             ]
           }
         }
