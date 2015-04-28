@@ -31,7 +31,7 @@ get-settings () {
     if [ "${CONSUL_ENDPOINT:-0}" != "0" ]; then
         echo "Using Environment for configuration"
     elif [ -f ${SETTINGS_FILE:-0} ]; then
-        PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
+        PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ServiceName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "Environment" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT="ui.${REGION}.consul.${NUBIS_ENVIRONMENT}.${NUBIS_DOMAIN}"
     else
