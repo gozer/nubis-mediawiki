@@ -24,6 +24,11 @@ After creating or updating a stack you might need to update Consul. Run this com
 bash nubis/bin/consul_inputs.sh --stack-name nubis-mediawiki --settings nubis/cloudformation/parameters.json get-and-update
 ```
 
+To get the list of nameservers for the HostedZone:
+```bash
+nubis/bin/consul_inputs.sh --stack-name nubis-mediawiki get-route53-nameservers
+```
+
 #### Nested Stacks
 
 We are using nested stacks to deploy the necessayr resources. You can find the nested stack templates at [nubis-stacks](https://github.com/Nubisproject/nubis-stacks).

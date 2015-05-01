@@ -57,7 +57,7 @@ get-route53-nameservers () {
     # Single stack quety
 #    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --logical-resource-id  HostedZone --query StackResources[*].PhysicalResourceId --output text)
     # Nested stack query
-    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[*].PhysicalResourceId' --output text)
+    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[?LogicalResourceId == `HostedZone`].PhysicalResourceId' --output text)
     aws route53 get-hosted-zone --id $ZONE_ID --query DelegationSet.NameServers --output table
 }
 
