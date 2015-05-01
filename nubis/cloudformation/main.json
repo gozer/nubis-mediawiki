@@ -117,7 +117,8 @@
           },
           "Environment": {
             "Ref": "Environment"
-          }
+          },
+          "ElbHealthTarget": "HTTP:80/Special%3AVersion"
         }
       }
     },
@@ -251,7 +252,7 @@
         "Fn::Join": [
           ".",
           [
-            "http://www",
+            "//www",
             {
               "Ref": "ServiceName"
             },
