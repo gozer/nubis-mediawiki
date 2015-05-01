@@ -19,14 +19,15 @@ class {
 }
 
 apache::vhost { $::vhost_name:
-    port          => '8080',
-    default_vhost => true,
-    docroot       => $::install_root,
-    docroot_owner => 'ubuntu',
-    docroot_group => 'ubuntu',
+    port              => '8080',
+    default_vhost     => true,
+    docroot           => $::install_root,
+    docroot_owner     => 'ubuntu',
+    docroot_group     => 'ubuntu',
     block             => ['scm'],
+    setenvif          => 'X_FORWARDED_PROTO https HTTPS=on',
     access_log_format => '%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"',
-    rewrites      => [
+    rewrites          => [
     {
       comment      => 'Dont rewrite requests for files in MediaWiki subdirectories',
       rewrite_cond => ['%{REQUEST_URI} !^/(assets|extensions|images|skins|resources)/',

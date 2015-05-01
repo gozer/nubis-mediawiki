@@ -31,7 +31,7 @@ get-settings () {
     if [ "${CONSUL_ENDPOINT:-0}" != "0" ]; then
         echo "Using Environment for configuration"
     elif [ -f ${SETTINGS_FILE:-0} ]; then
-        PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ProjectName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
+        PROJECT_NAME=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "ServiceName" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         NUBIS_ENVIRONMENT=$(jq --monochrome-output --raw-output '.[] | if .ParameterKey == "Environment" then .ParameterValue else empty end | @text' $SETTINGS_FILE)
         CONSUL_ENDPOINT="ui.${REGION}.consul.${NUBIS_ENVIRONMENT}.${NUBIS_DOMAIN}"
     else
@@ -57,7 +57,7 @@ get-route53-nameservers () {
     # Single stack quety
 #    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_NAME --logical-resource-id  HostedZone --query StackResources[*].PhysicalResourceId --output text)
     # Nested stack query
-    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[*].PhysicalResourceId' --output text)
+    ZONE_ID=$(aws cloudformation describe-stack-resources --stack-name $STACK_ID --query 'StackResources[?LogicalResourceId == `HostedZone`].PhysicalResourceId' --output text)
     aws route53 get-hosted-zone --id $ZONE_ID --query DelegationSet.NameServers --output table
 }
 

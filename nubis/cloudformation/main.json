@@ -2,7 +2,7 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Demo Mediawiki deployment for the nubis project.",
   "Parameters": {
-    "ProjectName": {
+    "ServiceName": {
       "Description": "Name of this deployment",
       "Type": "String"
     },
@@ -70,8 +70,8 @@
         "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/ec2.template",
         "TimeoutInMinutes": "60",
         "Parameters": {
-          "ProjectName": {
-            "Ref": "ProjectName"
+          "ServiceName": {
+            "Ref": "ServiceName"
           },
           "TechnicalOwner": {
             "Ref": "TechnicalOwner"
@@ -117,7 +117,8 @@
           },
           "Environment": {
             "Ref": "Environment"
-          }
+          },
+          "ElbHealthTarget": "HTTP:80/Special%3AVersion"
         }
       }
     },
@@ -128,7 +129,7 @@
         "TimeoutInMinutes": "60",
         "Parameters": {
           "ServiceName": {
-            "Ref": "ProjectName"
+            "Ref": "ServiceName"
           },
           "TechnicalOwner": {
             "Ref": "TechnicalOwner"
@@ -139,7 +140,7 @@
           "AllocatedStorage": "15",
           "DBInstanceClass": "db.t1.micro",
           "DBName": {
-            "Ref": "ProjectName"
+            "Ref": "ServiceName"
           },
           "EC2SecurityGroup": {
             "Fn::GetAtt": [
@@ -157,7 +158,7 @@
         "TimeoutInMinutes": "60",
         "Parameters": {
           "ServiceName": {
-            "Ref": "ProjectName"
+            "Ref": "ServiceName"
           },
           "TechnicalOwner": {
             "Ref": "TechnicalOwner"
@@ -180,11 +181,11 @@
         "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/route53.template",
         "TimeoutInMinutes": "60",
         "Parameters": {
+          "ServiceName": {
+            "Ref": "ServiceName"
+          },
           "Environment": {
             "Ref": "Environment"
-          },
-          "ProjectName": {
-            "Ref": "ProjectName"
           },
           "BaseZone": {
             "Ref": "BaseZone"
@@ -204,8 +205,8 @@
         "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/storage.template",
         "TimeoutInMinutes": "60",
         "Parameters": {
-          "ProjectName": {
-            "Ref": "ProjectName"
+          "ServiceName": {
+            "Ref": "ServiceName"
           },
           "TechnicalOwner": {
             "Ref": "TechnicalOwner"
@@ -251,9 +252,9 @@
         "Fn::Join": [
           ".",
           [
-            "http://www",
+            "//www",
             {
-              "Ref": "ProjectName"
+              "Ref": "ServiceName"
             },
             {
               "Ref": "Environment"

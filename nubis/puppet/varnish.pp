@@ -15,7 +15,8 @@ class { 'varnish::vcl':
 }
 
 varnish::probe {  'mediawiki_version': 
-  url => '/Special%3AVersion'
+  url => '/Special%3AVersion',
+  timeout => '15s',
 }
 
 varnish::backend { 'default': 
