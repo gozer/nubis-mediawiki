@@ -6,15 +6,15 @@ The structure of the repository is quite simple. The application is installed as
 
 
 ## Deployment Process
-Currently there are a few steps necessary to deploy this project. We intend to simplify this process going forward. While these steps are listed in order to build and deploy, it is typically not necessary to run the build steps. This means you can skip the Nubis-Builder steps and jump straight to the [Terraform](#terraform) section.
+There are a few steps necessary to deploy this project. While these steps are listed in order to build and deploy, it is not necessary to run the build steps if you use and AMI that we have already created. This means you can skip the Nubis-Builder steps and jump straight to the [CloudFormation](#cloudformation) section.
 
 
 ### Puppet
-We are using [puppet](http://puppetlabs.com/) in this example to bootstrap up our VM. Puppet installs and configures services such as *Apache* and *MySql*. We are using the [nubis-puppet](https://github.com/Nubisproject/nubis-puppet) project for our module collection. This is conveniently installed on the *base image* (built by [nubis-base](https://github.com/Nubisproject/nubis-base)) that we are going to use as the starting image for our Packer build in the next step.
+We are using [puppet](http://puppetlabs.com/) in this example to bootstrap up our VM. Puppet installs and configures services such as *Apache* and *MySql*. We are using the [nubis-puppet](https://github.com/Nubisproject/nubis-puppet) project for our module collection. This is conveniently installed on the *base image* (built by [nubis-base](https://github.com/Nubisproject/nubis-base)) that we are going to use as the starting image for our Nubis-Builder build in the next step.
 
 
 ### Nubis-Builder
-[Nubis-Builder](https://github.com/Nubisproject/nubis-builder) is the piece that will build our AMI. It is made up of a few pieces:
+[Nubis-Builder](https://github.com/Nubisproject/nubis-builder) is the piece that will build our AMI. It uses [Packer](https://packer.io) under the hood. It is made up of a few pieces:
 
 1. The [provisioners.json](nubis/builder/provisioners.json) file which contains:
         * One or more *provisioners* statements for any bootstrapping commands for the application
@@ -30,32 +30,29 @@ nubis-builder build
 This takes around *11m 18.488s* to complete.
 
 
-### Terraform
-The next step is to take the shiny new AMI that Packer built and deploy it. This is where [Terraform](https://www.terraform.io/) comes into play. Terraform is our infrastructure deployment framework, but not to worry it is really not as complicated as its name implies. It consists of a few files:
+### CloudFormation
+The next step is to take the shiny new AMI that Packer built and deploy it. This is where [CloudFormation](http://aws.amazon.com/cloudformation/) comes into play. CloudFormation is our infrastructure deployment framework. It consists of a few files:
 
-1. [inputs.tf](nubis/terraform/inputs.tf) simply lists the variables you might need to provide
-2. [main.tf](nubis/terraform/main.tf) is where the real heavy lifting takes place. This is where you describe your infrastructure. Thisgs like EC2 instances, security groups, ELBs and so on.
-3. [outputs.tf](nubis/terraform/outputs.tf) describes what information from the build we want to make available (via Consul) for later reference.
-4. [terraform.tfvars](nubis/terraform/terraform.tfvars-dist) is where you will set your AWS credentials and such.
+1. [parameters.json](nubis/cloudformation/parameters.json-dist) describes the inputs you need to provide.
+1. [main.json](nubis/cloudformation/main.json-dist) describes the resources necessary to run the application.
 
-To run terraform, from the repository root you first need to create your *terraform.tfvars* file, for which there is a template provided (terraform.tfvars-dist). After which you simply call terraform like so:
+In your nubis/cloudformation directlry copy the [parameters.json-dist](nubis/cloudformation/parameters.json-dist) file to parameters.json and edit it as follows:
 
-To see what resources will be created, destroyed, or refreshed:
-```bash
-terraform plan -var-file=nubis/terraform/terraform.tfvars nubis/terraform/
-```
-To apply the plan (do the work)
-```bash
-terraform apply -var-file=nubis/terraform/terraform.tfvars nubis/terraform/
-```
-This takes around *0m 35.162s*, which you can see is quite speedy.
+* [ServiceName](https://github.com/Nubisproject/nubis-mediawiki/blob/master/nubis/cloudformation/parameters.json-dist#L3) should be set to something unique like "jdmediawiki".
+* [Environment](https://github.com/Nubisproject/nubis-mediawiki/blob/master/nubis/cloudformation/parameters.json-dist#L7) should be set to "sandbox".
+* [KeyName](https://github.com/Nubisproject/nubis-mediawiki/blob/master/nubis/cloudformation/parameters.json-dist#L11) should be set to the name of the key you uploaded to AWS.
+* [TechnicalOwner](https://github.com/Nubisproject/nubis-mediawiki/blob/master/nubis/cloudformation/parameters.json-dist#L15) should be set to a valid email address for you.
+* [AmiId](https://github.com/Nubisproject/nubis-mediawiki/blob/master/nubis/cloudformation/parameters.json-dist#L19) should be set to either the AMI you built in the previous step or to a value in the following table if you did not build your own AMI.
 
-### Cloudformation
-This can now be deployed using cloudformation. To deploy through cloudformation instead of Terraform see the README file in the nubis/cloudformation directory.
+ | Environment | AMI Id       |
+ |-------------|--------------|
+ | Sandbox     | ami-6f99ad5f |
+ | Dev         |              |
+ | Prod        |              |
 
+This can now be deployed using the AWS cli tools. For commands see the [README](nubis/cloudformation/README.md) in the nubis/cloudformation directory
 
 ## Quick Commands
-Edit *nubis/terraform/terraform.tfvars*
 ```bash
 git clone https://github.com/nubisproject/nubis-mediawiki.git
 
@@ -63,5 +60,9 @@ git submodule update --init --recursive
 
 nubis-builder build 
 
-terraform apply -var-file=nubis/terraform/terraform.tfvars nubis/terraform/
+cp nubis/cloudformation/parameters.json-dist nubis/cloudformation/parameters.json
+
+vi nubis/cloudformation/parameters.json
+
+aws cloudformation create-stack --stack-name nubis-mediawiki --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json
 ```
