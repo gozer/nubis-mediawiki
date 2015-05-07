@@ -34,7 +34,7 @@ This takes around *11m 18.488s* to complete.
 The next step is to take the shiny new AMI that Packer built and deploy it. This is where [CloudFormation](http://aws.amazon.com/cloudformation/) comes into play. CloudFormation is our infrastructure deployment framework. It consists of a few files:
 
 1. [parameters.json](nubis/cloudformation/parameters.json-dist) describes the inputs you need to provide.
-1. [main.json](nubis/cloudformation/main.json-dist) describes the resources necessary to run the application.
+1. [main.json](nubis/cloudformation/main.json) describes the resources necessary to run the application.
 
 In your nubis/cloudformation directlry copy the [parameters.json-dist](nubis/cloudformation/parameters.json-dist) file to parameters.json and edit it as follows:
 
