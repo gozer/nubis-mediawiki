@@ -21,12 +21,12 @@ aws cloudformation delete-stack --stack-name nubis-mediawiki
 
 After creating or updating a stack you might need to update Consul. Run this command to take any (properly described) Cloudformation outputs and insert or update them in Consul:
 ```bash
-bash nubis/bin/consul_inputs.sh --stack-name nubis-mediawiki --settings nubis/cloudformation/parameters.json get-and-update
+nubis-consul --stack-name nubis-mediawiki --settings nubis/cloudformation/parameters.json get-and-update
 ```
 
 To get the list of nameservers for the HostedZone:
 ```bash
-nubis/bin/consul_inputs.sh --stack-name nubis-mediawiki get-route53-nameservers
+nubis-consul --stack-name nubis-mediawiki get-route53-nameservers
 ```
 
 #### Nested Stacks
