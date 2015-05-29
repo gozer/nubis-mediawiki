@@ -46,7 +46,7 @@ In your nubis/cloudformation directlry copy the [parameters.json-dist](nubis/clo
 
  | Environment | AMI Id       |
  |-------------|--------------|
- | Sandbox     | ami-6f99ad5f |
+ | Sandbox     | ami-7fdde24f |
  | Dev         |              |
  | Prod        |              |
 

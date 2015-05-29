@@ -1,6 +1,6 @@
 ﻿## Commands to work with CloudFormation
 
-NOTE: All examples run from the top level project directory.
+NOTE: All commands to be run from the top level project directory.
 
 You need to create a parameters.json file. You can use parameters.json-dist as an template.
 
@@ -14,21 +14,26 @@ To update and existing stack:
 aws cloudformation update-stack --stack-name nubis-mediawiki --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json
 ```
 
+After creating or updating a stack you might need to update Consul. Run this command to take any (properly described) Cloudformation outputs and insert or update them in Consul:
+```bash
+nubis-consul --stack-name nubis-mediawiki --settings nubis/cloudformation/parameters.json get-and-update
+```
+
+To get the list of nameservers for the HostedZone:
+```bash
+nubis-consul --stack-name nubis-mediawiki get-route53-nameservers
+```
+
 To delete the stack:
 ```bash
 aws cloudformation delete-stack --stack-name nubis-mediawiki
 ```
 
-After creating or updating a stack you might need to update Consul. Run this command to take any (properly described) Cloudformation outputs and insert or update them in Consul:
+After deleting the stack, be sure to remove the Consul data"
 ```bash
-bash nubis/bin/consul_inputs.sh --stack-name nubis-mediawiki --settings nubis/cloudformation/parameters.json get-and-update
-```
-
-To get the list of nameservers for the HostedZone:
-```bash
-nubis/bin/consul_inputs.sh --stack-name nubis-mediawiki get-route53-nameservers
+nubis-consul --stack-name nubis-dpaste-twentysix --settings nubis/cloudformation/parameters.json delete
 ```
 
 #### Nested Stacks
 
-We are using nested stacks to deploy the necessayr resources. You can find the nested stack templates at [nubis-stacks](https://github.com/Nubisproject/nubis-stacks).
+We are using nested stacks to deploy the necessary resources. You can find the nested stack templates at [nubis-stacks](https://github.com/Nubisproject/nubis-stacks).
