@@ -55,7 +55,7 @@
       "prod": {
         "InstanceType": "m3.large"
       },
-      "dev": {
+      "stage": {
         "InstanceType": "m3.medium"
       },
       "sandbox": {
@@ -208,6 +208,9 @@
         "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/storage.template",
         "TimeoutInMinutes": "60",
         "Parameters": {
+          "StackName": {
+            "Ref": "AWS::StackName"
+          },
           "ServiceName": {
             "Ref": "ServiceName"
           },
