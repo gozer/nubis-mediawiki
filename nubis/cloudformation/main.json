@@ -22,7 +22,7 @@
       "Default": "nubis.allizom.org",
       "Type": "String"
     },
-    "KeyName": {
+    "SSHKeyName": {
       "Description": "Existing ssh key to deploy to EC2 instances",
       "Type": "String"
     },
@@ -85,8 +85,8 @@
           "AmiId": {
             "Ref": "AmiId"
           },
-          "KeyName": {
-            "Ref": "KeyName"
+          "SSHKeyName": {
+            "Ref": "SSHKeyName"
           },
           "InstanceType": {
             "Fn::FindInMap": [
@@ -220,8 +220,8 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "KeyName": {
-            "Ref": "KeyName"
+          "SSHKeyName": {
+            "Ref": "SSHKeyName"
           },
           "InstanceType": {
             "Ref": "StorageInstanceType"
@@ -260,7 +260,25 @@
           [
             "//www",
             {
-              "Ref": "ServiceName"
+              "Ref": "AWS::StackName"
+            },
+            {
+              "Ref": "Environment"
+            },
+            "nubis.allizom.org"
+          ]
+        ]
+      }
+    },
+    "wgCanonicalServer": {
+      "Description": "Consul: config/ Server url",
+      "Value": {
+        "Fn::Join": [
+          ".",
+          [
+            "https://www",
+            {
+              "Ref": "AWS::StackName"
             },
             {
               "Ref": "Environment"
