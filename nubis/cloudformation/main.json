@@ -34,6 +34,11 @@
       "Description": "The id of the ami for this region",
       "Type": "String"
     },
+    "StacksVersion": {
+      "Description": "Version of the Nubis Stacks",
+      "Type": "String",
+      "Default": "master"
+    },
     "StorageClusterSize": {
       "Description": "The number of nodes in the storage cluster",
       "Type": "String",
@@ -67,7 +72,7 @@
     "EC2Stack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/ec2.template",
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "ec2.template" ] ] },
         "TimeoutInMinutes": "60",
         "Parameters": {
           "StackName": {
@@ -109,7 +114,7 @@
     "ELBStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/elb.template",
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "elb.template" ] ] },
         "TimeoutInMinutes": "60",
         "Parameters": {
           "ServiceName": {
@@ -128,7 +133,7 @@
     "RDSStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/rds-mysql.template",
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "rds-mysql.template" ] ] },
         "TimeoutInMinutes": "60",
         "Parameters": {
           "ServiceName": {
@@ -157,7 +162,7 @@
     "MemcacheStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/memcache.template",
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "memcache.template" ] ] },
         "TimeoutInMinutes": "60",
         "Parameters": {
           "ServiceName": {
@@ -181,7 +186,7 @@
     "Route53Stack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/route53.template",
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "route53.template" ] ] },
         "TimeoutInMinutes": "60",
         "Parameters": {
           "DNSName": {
@@ -205,7 +210,7 @@
     "StorageStack": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/nubisproject-stacks/master/storage.template",
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "storage.template" ] ] },
         "TimeoutInMinutes": "60",
         "Parameters": {
           "StackName": {
