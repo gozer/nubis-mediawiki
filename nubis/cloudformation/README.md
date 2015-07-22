@@ -51,13 +51,13 @@ In these examples the stack is called *nubis-mediawiki*. You will need to choose
 ### Create
 To create a new stack:
 ```bash
-aws cloudformation create-stack --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json --stack-name nubis-mediawiki
+aws cloudformation create-stack --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json --capabilities CAPABILITY_IAM --stack-name nubis-mediawiki
 ```
 
 ### Update
 To update and existing stack:
 ```bash
-aws cloudformation update-stack --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json --stack-name nubis-mediawiki
+aws cloudformation update-stack --template-body file://nubis/cloudformation/main.json --parameters file://nubis/cloudformation/parameters.json --capabilities CAPABILITY_IAM --stack-name nubis-mediawiki
 ```
 
 ### Update Consul
@@ -87,7 +87,7 @@ aws cloudformation describe-stacks --query 'Stacks[*].Outputs[?OutputKey == `ELB
 ### Delete
 To delete the stack:
 ```bash
-aws cloudformation delete-stack --stack-name nubis-mediawiki
+aws cloudformation delete-stack --capabilities CAPABILITY_IAM --stack-name nubis-mediawiki
 ```
 
 After deleting the stack, be sure to remove the Consul data"
