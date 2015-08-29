@@ -4,4 +4,5 @@ nubis/terraform/terraform.tfstate
 nubis/terraform/terraform.tfstate.backup
 terraform.tfstate
 terraform.tfstate.backup
-nubis/cloudformation/parameters.json
+nubis/cloudformation/parameters*
+!nubis/cloudformation/parameters.json-dist

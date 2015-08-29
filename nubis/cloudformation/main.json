@@ -107,6 +107,24 @@
               "ELBStack",
               "Outputs.ELB"
             ]
+          },
+          "AutoScalingGroupMinSize": "2",
+          "AutoScalingGroupDesiredCapacity": "2",
+          "AutoScalingGroupMaxSize": "4"
+        }
+      }
+    },
+    "AutoScalingStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": [ "/", [ "https://s3.amazonaws.com/nubisproject-stacks", { "Ref": "StacksVersion" }, "autoscaling-cpu.template" ] ] },
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "AutoScalingGroup": {
+            "Fn::GetAtt": [
+              "EC2Stack",
+              "Outputs.AutoScalingGroup"
+            ]
           }
         }
       }
