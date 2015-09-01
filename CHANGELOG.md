@@ -1,8 +1,18 @@
 # Change Log
 
+## [v1.0.0](https://github.com/nubisproject/nubis-mediawiki/tree/v1.0.0) (2015-08-31)
+
+[Full Changelog](https://github.com/nubisproject/nubis-mediawiki/compare/v0.9.0...v1.0.0)
+
+**Merged pull requests:**
+
+- Fix up autoscaling group [\#45](https://github.com/Nubisproject/nubis-mediawiki/pull/45) ([tinnightcap](https://github.com/tinnightcap))
+
 ## [v0.9.0](https://github.com/nubisproject/nubis-mediawiki/tree/v0.9.0) (2015-07-22)
 
 **Merged pull requests:**
+
+- Updating changelog for v0.9.0 release [\#42](https://github.com/Nubisproject/nubis-mediawiki/pull/42) ([tinnightcap](https://github.com/tinnightcap))
 
 - Updates for 0.9.0 release [\#41](https://github.com/Nubisproject/nubis-mediawiki/pull/41) ([tinnightcap](https://github.com/tinnightcap))
 
