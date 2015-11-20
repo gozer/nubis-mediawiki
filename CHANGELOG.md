@@ -9,6 +9,7 @@
 
 **Merged pull requests:**
 
+- Update CHANGELOG for v1.0.1 release [\#51](https://github.com/nubisproject/nubis-mediawiki/pull/51) ([tinnightcap](https://github.com/tinnightcap))
 - Update AMI IDs file for v1.0.1 release [\#50](https://github.com/nubisproject/nubis-mediawiki/pull/50) ([tinnightcap](https://github.com/tinnightcap))
 - Update StacksVersion for v1.0.1 release [\#49](https://github.com/nubisproject/nubis-mediawiki/pull/49) ([tinnightcap](https://github.com/tinnightcap))
 - Updating packages to latest [\#48](https://github.com/nubisproject/nubis-mediawiki/pull/48) ([tinnightcap](https://github.com/tinnightcap))
@@ -56,15 +57,12 @@
 - make sure httpd doesnt create a default vhost on port 80 [\#16](https://github.com/nubisproject/nubis-mediawiki/pull/16) ([gozer](https://github.com/gozer))
 - Add Varnish front-end [\#15](https://github.com/nubisproject/nubis-mediawiki/pull/15) ([gozer](https://github.com/gozer))
 - Add taggs and minor updates [\#14](https://github.com/nubisproject/nubis-mediawiki/pull/14) ([tinnightcap](https://github.com/tinnightcap))
-- Change default theme and logo [\#13](https://github.com/nubisproject/nubis-mediawiki/pull/13) ([gozer](https://github.com/gozer))
 - set IgnoreUnmodifiedGroupSizeProperties otherwise we update on each update [\#12](https://github.com/nubisproject/nubis-mediawiki/pull/12) ([gozer](https://github.com/gozer))
 - Just a small hacky thing to help CI along [\#11](https://github.com/nubisproject/nubis-mediawiki/pull/11) ([gozer](https://github.com/gozer))
-- AutoScaling work for simple Rolling Upgrades on AMI changes [\#10](https://github.com/nubisproject/nubis-mediawiki/pull/10) ([gozer](https://github.com/gozer))
 - fix temporary sandbox workaround [\#8](https://github.com/nubisproject/nubis-mediawiki/pull/8) ([gozer](https://github.com/gozer))
-- Make migrate wait for consul keys [\#7](https://github.com/nubisproject/nubis-mediawiki/pull/7) ([tinnightcap](https://github.com/tinnightcap))
+- Add conditional logic for non sandbox deployment [\#5](https://github.com/nubisproject/nubis-mediawiki/pull/5) ([tinnightcap](https://github.com/tinnightcap))
 - Make cloudformation do what terraform already does [\#4](https://github.com/nubisproject/nubis-mediawiki/pull/4) ([tinnightcap](https://github.com/tinnightcap))
-- Change to new consul ssl method [\#3](https://github.com/nubisproject/nubis-mediawiki/pull/3) ([tinnightcap](https://github.com/tinnightcap))
-- Adding cloudformation templates for nubis-mediawiki [\#1](https://github.com/nubisproject/nubis-mediawiki/pull/1) ([bhourigan](https://github.com/bhourigan))
+- Breaking CF templates into .d, adding other metadata parameters. Dont wo... [\#2](https://github.com/nubisproject/nubis-mediawiki/pull/2) ([bhourigan](https://github.com/bhourigan))
 
 
 
