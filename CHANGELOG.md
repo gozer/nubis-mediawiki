@@ -62,9 +62,9 @@
 - AutoScaling work for simple Rolling Upgrades on AMI changes [\#10](https://github.com/nubisproject/nubis-mediawiki/pull/10) ([gozer](https://github.com/gozer))
 - fix temporary sandbox workaround [\#8](https://github.com/nubisproject/nubis-mediawiki/pull/8) ([gozer](https://github.com/gozer))
 - Make migrate wait for consul keys [\#7](https://github.com/nubisproject/nubis-mediawiki/pull/7) ([tinnightcap](https://github.com/tinnightcap))
-- Add elasticache on top of VPC integration [\#6](https://github.com/nubisproject/nubis-mediawiki/pull/6) ([tinnightcap](https://github.com/tinnightcap))
 - Make cloudformation do what terraform already does [\#4](https://github.com/nubisproject/nubis-mediawiki/pull/4) ([tinnightcap](https://github.com/tinnightcap))
 - Change to new consul ssl method [\#3](https://github.com/nubisproject/nubis-mediawiki/pull/3) ([tinnightcap](https://github.com/tinnightcap))
+- Adding cloudformation templates for nubis-mediawiki [\#1](https://github.com/nubisproject/nubis-mediawiki/pull/1) ([bhourigan](https://github.com/bhourigan))
 
 
 
