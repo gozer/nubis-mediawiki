@@ -1,14 +1,28 @@
 # Change Log
 
+## [v1.1.0](https://github.com/nubisproject/nubis-mediawiki/tree/v1.1.0) (2016-04-18)
+[Full Changelog](https://github.com/nubisproject/nubis-mediawiki/compare/v1.0.1...v1.1.0)
+
+**Closed issues:**
+
+- Tag v1.1.0 release [\#43](https://github.com/nubisproject/nubis-mediawiki/issues/43)
+
+**Merged pull requests:**
+
+- Updates for v1.1.0 release [\#55](https://github.com/nubisproject/nubis-mediawiki/pull/55) ([tinnightcap](https://github.com/tinnightcap))
+- Update versions for  release [\#54](https://github.com/nubisproject/nubis-mediawiki/pull/54) ([tinnightcap](https://github.com/tinnightcap))
+
 ## [v1.0.1](https://github.com/nubisproject/nubis-mediawiki/tree/v1.0.1) (2015-11-20)
 [Full Changelog](https://github.com/nubisproject/nubis-mediawiki/compare/v1.0.0...v1.0.1)
 
 **Closed issues:**
 
 - Tag  release [\#46](https://github.com/nubisproject/nubis-mediawiki/issues/46)
+- Tag v1.0.1 release [\#47](https://github.com/nubisproject/nubis-mediawiki/issues/47)
 
 **Merged pull requests:**
 
+- Update CHANGELOG for v1.0.1 release [\#52](https://github.com/nubisproject/nubis-mediawiki/pull/52) ([tinnightcap](https://github.com/tinnightcap))
 - Update CHANGELOG for v1.0.1 release [\#51](https://github.com/nubisproject/nubis-mediawiki/pull/51) ([tinnightcap](https://github.com/tinnightcap))
 - Update AMI IDs file for v1.0.1 release [\#50](https://github.com/nubisproject/nubis-mediawiki/pull/50) ([tinnightcap](https://github.com/tinnightcap))
 - Update StacksVersion for v1.0.1 release [\#49](https://github.com/nubisproject/nubis-mediawiki/pull/49) ([tinnightcap](https://github.com/tinnightcap))
@@ -57,12 +71,19 @@
 - make sure httpd doesnt create a default vhost on port 80 [\#16](https://github.com/nubisproject/nubis-mediawiki/pull/16) ([gozer](https://github.com/gozer))
 - Add Varnish front-end [\#15](https://github.com/nubisproject/nubis-mediawiki/pull/15) ([gozer](https://github.com/gozer))
 - Add taggs and minor updates [\#14](https://github.com/nubisproject/nubis-mediawiki/pull/14) ([tinnightcap](https://github.com/tinnightcap))
+- Change default theme and logo [\#13](https://github.com/nubisproject/nubis-mediawiki/pull/13) ([gozer](https://github.com/gozer))
 - set IgnoreUnmodifiedGroupSizeProperties otherwise we update on each update [\#12](https://github.com/nubisproject/nubis-mediawiki/pull/12) ([gozer](https://github.com/gozer))
 - Just a small hacky thing to help CI along [\#11](https://github.com/nubisproject/nubis-mediawiki/pull/11) ([gozer](https://github.com/gozer))
+- AutoScaling work for simple Rolling Upgrades on AMI changes [\#10](https://github.com/nubisproject/nubis-mediawiki/pull/10) ([gozer](https://github.com/gozer))
+- Adding tags and minor fixes [\#9](https://github.com/nubisproject/nubis-mediawiki/pull/9) ([tinnightcap](https://github.com/tinnightcap))
 - fix temporary sandbox workaround [\#8](https://github.com/nubisproject/nubis-mediawiki/pull/8) ([gozer](https://github.com/gozer))
+- Make migrate wait for consul keys [\#7](https://github.com/nubisproject/nubis-mediawiki/pull/7) ([tinnightcap](https://github.com/tinnightcap))
+- Add elasticache on top of VPC integration [\#6](https://github.com/nubisproject/nubis-mediawiki/pull/6) ([tinnightcap](https://github.com/tinnightcap))
 - Add conditional logic for non sandbox deployment [\#5](https://github.com/nubisproject/nubis-mediawiki/pull/5) ([tinnightcap](https://github.com/tinnightcap))
 - Make cloudformation do what terraform already does [\#4](https://github.com/nubisproject/nubis-mediawiki/pull/4) ([tinnightcap](https://github.com/tinnightcap))
+- Change to new consul ssl method [\#3](https://github.com/nubisproject/nubis-mediawiki/pull/3) ([tinnightcap](https://github.com/tinnightcap))
 - Breaking CF templates into .d, adding other metadata parameters. Dont wo... [\#2](https://github.com/nubisproject/nubis-mediawiki/pull/2) ([bhourigan](https://github.com/bhourigan))
+- Adding cloudformation templates for nubis-mediawiki [\#1](https://github.com/nubisproject/nubis-mediawiki/pull/1) ([bhourigan](https://github.com/bhourigan))
 
 
 
