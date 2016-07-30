@@ -1,10 +1,23 @@
 # Change Log
 
-## [v1.2.0](https://github.com/nubisproject/nubis-mediawiki/tree/v1.2.0) (2016-07-07)
-[Full Changelog](https://github.com/nubisproject/nubis-mediawiki/compare/v1.1.0...v1.2.0)
+## [v1.2.1](https://github.com/nubisproject/nubis-mediawiki/tree/v1.2.1) (2016-07-30)
+[Full Changelog](https://github.com/nubisproject/nubis-mediawiki/compare/v1.2.0...v1.2.1)
 
 **Merged pull requests:**
 
+- Update builder artifacts for v1.2.1 release [\#63](https://github.com/nubisproject/nubis-mediawiki/pull/63) ([tinnightcap](https://github.com/tinnightcap))
+- Update builder artifacts for v1.3.0-dev release [\#61](https://github.com/nubisproject/nubis-mediawiki/pull/61) ([tinnightcap](https://github.com/tinnightcap))
+
+## [v1.2.0](https://github.com/nubisproject/nubis-mediawiki/tree/v1.2.0) (2016-07-07)
+[Full Changelog](https://github.com/nubisproject/nubis-mediawiki/compare/v1.1.0...v1.2.0)
+
+**Closed issues:**
+
+- Tag v1.2.0 release [\#59](https://github.com/nubisproject/nubis-mediawiki/issues/59)
+
+**Merged pull requests:**
+
+- Update CHANGELOG for v1.2.0 release [\#60](https://github.com/nubisproject/nubis-mediawiki/pull/60) ([tinnightcap](https://github.com/tinnightcap))
 - Update builder artifacts for v1.2.0 release [\#58](https://github.com/nubisproject/nubis-mediawiki/pull/58) ([tinnightcap](https://github.com/tinnightcap))
 - Updating versions for release build [\#57](https://github.com/nubisproject/nubis-mediawiki/pull/57) ([tinnightcap](https://github.com/tinnightcap))
 
