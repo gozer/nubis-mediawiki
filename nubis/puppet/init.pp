@@ -21,12 +21,12 @@ package { 'php-apc':
 }
 
 package { 'php5-gd':
-  ensure => '5.5.9+dfsg-1ubuntu4.17',
+  ensure => '5.5.9+dfsg-1ubuntu4.19',
   require  => Exec['apt-get update'],
 }
 
 package { 'php5-mysql':
-  ensure => '5.5.9+dfsg-1ubuntu4.17',
+  ensure => '5.5.9+dfsg-1ubuntu4.19',
   require  => Exec['apt-get update'],
 }
 
